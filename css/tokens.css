@@ -1,0 +1,150 @@
+/**
+ * tokens.css — the one design-token file. (B1 / OPERATION NIGHTSHIFT)
+ *
+ * WHAT: :root custom properties for palette (constitution §2), type stacks
+ *       (§3), spacing scale, radii, z-index scale, and the Motion Bible's
+ *       shared duration, easing, and afterhours-scale tokens (02-motion.md §2.1).
+ * WHY:  "Zero raw hex, zero raw px/ms/deg values inside any component's CSS"
+ *       (motion bible §2.1) — every other CSS file in this site (base, nav,
+ *       hero, bunker, tab, take, wall, fx) reads tokens from here ONLY.
+ * HOW:  B8 owns the `.fx-*` utility CLASSES + @keyframes built on top of
+ *       these tokens (fx.css) — B8 does NOT redeclare the tokens themselves,
+ *       this file is their one source. AFTERHOURS scalars are flipped by a
+ *       plain attribute selector on [data-afterhours="true"] (state.js
+ *       stamps that attribute on <html> — architecture §2.4); canvas-internal
+ *       timings (hero) can't read these live so state.js also mirrors
+ *       afterhoursActive over the bus for JS consumers (motion bible §6).
+ * GOTCHA: this file must stay a pure variable dictionary — no selectors
+ *       beyond :root and the one [data-afterhours] override block below.
+ */
+
+:root {
+  /* ============================================================
+   * PALETTE — constitution §2. Component CSS uses these tokens
+   * ONLY; never a raw hex. Accent ceiling: sodium on ≤10% of
+   * elements (LIVE underline, active route, pin strobes, rank
+   * neon, links, focus ring — nothing else).
+   * ========================================================== */
+  --asphalt-deep:  #0E0A06; /* AFTERHOURS ground / the French Broad void */
+  --asphalt:       #171009; /* 60% dominant ground */
+  --asphalt-raised:#241811; /* raised surfaces: cards, chat rail, embed plate */
+  --vapor:         #EAD9C0; /* 30% — body text, print borders, flash highlights */
+  --vapor-dim:     #C9B394; /* secondary text */
+  --vapor-ghost:   #8F7B60; /* ghost text, timestamps, dead lamps — large/decorative only */
+  --sodium-hot:    #FFC46B; /* just-flashed core, neon tube top-stroke */
+  --sodium:        #FF9F1C; /* THE accent — ≤10% of elements, hard ceiling */
+  --sodium-ember:  #B36A0A; /* dying filaments, unlit grid — decorative ONLY, never text */
+  --flash:         #FFF8EC; /* the camera flash overlay — never a background */
+
+  /* ============================================================
+   * TYPE STACKS — constitution §3. Zero webfonts, system stacks only.
+   * ========================================================== */
+  --font-display: Haettenschweiler, "Arial Narrow Bold", Impact, "Avenir Next Condensed", "Franklin Gothic Medium", sans-serif-condensed, sans-serif;
+  --font-mono:    ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace;
+  --font-body:    system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sharpie: "Segoe Print", "Bradley Hand", "Comic Sans MS", casual, cursive;
+
+  /* Body baseline (constitution §3: 16px/1.55, vapor on asphalt). */
+  --fs-body: 16px;
+  --lh-body: 1.55;
+  /* Small general-purpose type scale (1.25 ratio, recon §5) for HUD/meta
+     text outside the display/blotter signature moves. */
+  --fs-sm:  0.8rem;   /* ~12.8px */
+  --fs-md:  1.25rem;  /* ~20px */
+  --fs-lg:  1.563rem; /* ~25px */
+  /* The one oversized display move (constitution §3). */
+  --fs-display: clamp(64px, 22vw, 180px);
+
+  /* ============================================================
+   * SPACING SCALE (recon §5: 4/8/12/16/24/32/48/64/96)
+   * ========================================================== */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* ============================================================
+   * RADII — ≤4, per recon §5.
+   * ========================================================== */
+  --radius-sm:   2px;
+  --radius-md:   4px;
+  --radius-lg:   8px;
+  --radius-full: 999px;
+
+  /* ============================================================
+   * Z-INDEX SCALE — one shared stacking order so B1's nav/scrim/
+   * toast never fight another zone's raised surfaces.
+   * ========================================================== */
+  --z-base:   0;
+  --z-raised: 10;
+  --z-nav:    100;
+  --z-toast:  200;
+  --z-scrim:  300;
+  --z-dialog: 310;
+
+  /* ============================================================
+   * MOTION BIBLE §2.1 — durations (ms) + easings.
+   * Binding: a component needing a duration/easing not listed
+   * here adds it here (B8), never drops a magic number in place.
+   * ========================================================== */
+  --dur-instant:            90ms;
+  --dur-hover:              160ms;
+  --dur-focus:              120ms;
+  --dur-ripple:             480ms;
+  --dur-wobble:             420ms;
+  --dur-flash-hold:         48ms;   /* the "3 frames" of full --flash */
+  --dur-flash-decay:        600ms;
+  --dur-sign-buzz:          900ms;
+  --dur-drift-decay:        800ms;  /* handlebar drift settling to zero after the ride head stops */
+  --dur-bloom-lamp:         400ms;  /* street lamp 0→64px */
+  --dur-bloom-puddle-in:    250ms;
+  --dur-bloom-puddle-out:   600ms;
+  --dur-rewind-implosion:   33ms;   /* literally 2 raster frames at 60fps */
+  --dur-mirror-lag:         400ms;  /* gutter mirror ring-buffer delay */
+  --dur-mirror-develop:     2000ms; /* press-and-hold photo-in-puddle */
+  --dur-rewire-dim:         120ms;
+  --dur-rewire-wire:        700ms;
+  --dur-rewire-shake:       160ms;
+  --dur-rewire-countup:     480ms;
+  --dur-toast:              4000ms;
+  --dur-receipt-line:       220ms;
+  --dur-perforation-grow:   500ms;
+  --dur-watts-tick:         260ms;  /* micro count-up, non-rank-up */
+  --dur-live-pulse:         833ms;  /* 72bpm = 60000/72 */
+  --dur-lightbox-dim:       280ms;
+  --dur-develop-snap:       200ms;
+  --dur-rim-breathe:        4800ms;
+  --dur-mayor-wire:         900ms;
+  --dur-mayor-letter:       150ms;  /* per-letter death stagger unit */
+  --dur-mayor-stagger:      80ms;
+  --dur-nav-underline:      220ms;
+  --dur-doorcheck-in:       320ms;
+  --dur-doorcheck-stagger:  80ms;
+  --dur-doorcheck-exit:     300ms;
+
+  --ease-standard:      cubic-bezier(0.4, 0, 0.2, 1);         /* generic UI micro-transitions: hover, focus, color */
+  --ease-inout-cubic:   cubic-bezier(0.65, 0, 0.35, 1);       /* count-ups, generic tweens */
+  --ease-wobble:        cubic-bezier(0.34, 1.28, 0.44, 0.96); /* DRUNK WOBBLE — one overshoot, one correction */
+  --ease-flash-decay:   cubic-bezier(0.05, 0.9, 0.1, 1);      /* FLASH POP decay */
+  --ease-ripple:        cubic-bezier(0.16, 0.84, 0.28, 1);    /* PUDDLE RIPPLE expansion */
+  --ease-bloom:         cubic-bezier(0.16, 1, 0.3, 1);        /* light arriving: lamp bloom, puddle ignite */
+  --ease-out-soft:      cubic-bezier(0.22, 1, 0.36, 1);       /* cinematic settle: door-check, lightbox, receipt, HUD */
+
+  /* AFTERHOURS scalars — read by CSS calc() AND mirrored into JS via the
+     `afterhoursActive` flag on state:change (motion bible §6). Ambient/idle
+     motion only; FLASH POP / THE REWIRE / PUDDLE RIPPLE never read these. */
+  --afterhours-scale-buzz:   1;
+  --afterhours-scale-mirror: 1;
+}
+
+/* AFTERHOURS composes over whichever surface is active (architecture §2.2);
+   state.js stamps this attribute on <html> on every derived change. */
+:root[data-afterhours="true"] {
+  --afterhours-scale-buzz:   1.6;
+  --afterhours-scale-mirror: 2;
+}

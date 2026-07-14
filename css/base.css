@@ -1,0 +1,389 @@
+/**
+ * base.css — reset, body, zone plates, a11y. (B1 / OPERATION NIGHTSHIFT)
+ *
+ * WHAT: CSS reset, body defaults, the shared `.zone`/`.plate-heading`
+ *       signage scaffold every zone section uses, the site-wide
+ *       focus-visible sodium ring (orchestrator ruling R2), reduced-motion
+ *       globals, and the a11y skip link.
+ * WHY:  One shared plate/heading system means THE ROUTE/BUNKER/TAKE/WALL/
+ *       RULES all read as one piece of signage, not five different zones
+ *       improvising their own headers (constitution's "recognition =
+ *       repetition" law).
+ * HOW:  Zone CSS files (hero/bunker/tab/take/wall/fx) style their OWN
+ *       zone's interior; base.css only owns the shared shell: the <section
+ *       class="zone"> wrapper, its plate heading, and the sub-line under it.
+ * GOTCHA: The buzz ANIMATION (`.fx-sign-buzz`) is B8's keyframe in fx.css —
+ *       this file only applies the class name in markup/JS and reserves the
+ *       *static* (lit) look so the page never flashes unstyled content
+ *       before fx.css loads. Reduced-motion here covers globals only; every
+ *       component's specific RM fallback lives in that component's own CSS
+ *       per the Motion Bible §8 table.
+ */
+
+/* ---------------------------------------------------------------- reset */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, h1, h2, h3, h4, p, figure, blockquote, dl, dd, ul, ol { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+img, svg { display: block; max-width: 100%; }
+button, input { font: inherit; color: inherit; }
+a { color: inherit; }
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  background: var(--asphalt);
+  color: var(--vapor);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  min-height: 100vh;
+  /* No body-wide `overflow-x: hidden` (recon §5: fix the overflowing
+     element itself — a canvas exceeding viewport, a wide table — never
+     crop the whole body; that just hides layout bugs). */
+}
+
+/* AFTERHOURS ground swap — instant attribute-driven set, not an animated
+   transition (Global Law 7: the mood mutation touches ambience, and a
+   background-color swap here is a static state, not a `transition`). */
+:root[data-afterhours="true"] body {
+  background: var(--asphalt-deep);
+}
+
+main { display: block; }
+
+/* -------------------------------------------------------- a11y utilities
+   (No `.sr-only` utility here: it was declared but never applied anywhere
+   in the site — hero.css owns its own visually-hidden pattern for the
+   sr-only drop ledger (`.route-sr`). Removed rather than left dead.) */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--space-3);
+  z-index: var(--z-toast);
+  background: var(--asphalt-raised);
+  color: var(--vapor);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  text-decoration: none;
+  transition: top var(--dur-hover) var(--ease-standard);
+}
+.skip-link:focus-visible {
+  top: var(--space-3);
+}
+
+/* Site-wide focus-visible ring — sodium, per orchestrator ruling R2:
+   keyboard focus is transient/keyboard-only and reads as an extension of
+   "active route/active state," so it is NOT counted against the ≤10%
+   accent-ceiling audit. Never on bare :focus (no ring on mouse click),
+   never removed without this replacement. */
+:focus-visible {
+  outline: 2px solid var(--sodium);
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ------------------------------------------------------- zone scaffold */
+.zone {
+  position: relative;
+  padding: var(--space-8) var(--space-4);
+  border-top: 1px solid var(--asphalt-raised);
+}
+.zone:first-of-type { border-top: 0; }
+
+.zone__inner {
+  max-width: 78ch;
+  margin-inline: auto;
+}
+
+.plate {
+  margin-bottom: var(--space-6);
+}
+
+/* The one oversized move (constitution §3): DISPLAY stack, uppercase,
+   tracking -0.02em, vapor ink. `.fx-sign-buzz` (B8, fx.css) is applied in
+   markup; until fx.css loads the heading simply renders lit and static,
+   which IS the reduced-motion fallback too (Motion Bible §8). */
+.plate-heading {
+  font-family: var(--font-display);
+  font-size: var(--fs-display);
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--vapor);
+  word-break: break-word;
+}
+
+/* The designated "bad filament" letter (Determinism Law: seeded per-plate
+   string, applied by main.js) idles dim even outside a buzz cycle. */
+.plate-heading .is-bad-filament {
+  opacity: 0.85;
+}
+
+.plate-sub {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--vapor-dim);
+  margin-top: var(--space-3);
+  max-width: 60ch;
+}
+
+/* Tap targets ≥44px everywhere, even when the visual is torn (constitution
+   §8.6) — a shared baseline any zone's interactive elements can rely on.
+   `display: inline-flex` is required here: min-width/min-height are no-ops
+   on non-replaced inline elements (CSS2.1 §10.3.1/§10.6.1), and this class
+   is applied straight onto plain inline <a> tags (e.g. the footer social
+   links), not just onto elements that already set their own flex display. */
+.tap-target {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* --------------------------------------------------- reduced-motion globals
+   Component-specific fallbacks live in each zone's own CSS (Motion Bible
+   §8). This block only covers the globally shared primitives B1 owns:
+   nav underline snaps instead of sweeping, and the door-check entrance
+   (see nav.css / the door dialog rules in this file's neighbors). */
+@media (prefers-reduced-motion: reduce) {
+  * , *::before, *::after {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------- the shared scrim node
+   ONE DOM node, owned by B1 (motion bible §3 ownership key). THE REWIRE
+   (B4) and the Lightbox (B6) drive its opacity via WAAPI (their own
+   per-call duration/easing — motion bible §2.2's GLOBAL-09 note) so they
+   never fight over two dim layers. B1 drives it directly with the
+   `.is-visible` class for the door check (GLOBAL-06/07), which is a
+   one-shot, non-overlapping use and so is permitted plain class-toggling
+   under Motion Law 4. */
+.fx-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--asphalt-deep);
+  opacity: 0;
+  pointer-events: none;
+  z-index: var(--z-scrim);
+  transition: opacity var(--dur-doorcheck-in) linear;
+}
+.fx-scrim.is-visible {
+  opacity: 0.82;
+  transition-duration: var(--dur-doorcheck-exit);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fx-scrim { transition-duration: 150ms; }
+}
+
+/* ------------------------------------------------------- door check (GLOBAL-06/07)
+   Native <dialog> for a real, zero-JS-cost focus trap + ESC handling.
+   Its own ::backdrop is neutralized — the shared .fx-scrim sits behind it
+   and does the "asphalt fades in" visual instead, per constitution's one
+   shared dim layer. */
+dialog#door-dialog {
+  border: 0;
+  background: var(--asphalt-raised);
+  color: var(--vapor);
+  max-width: 480px;
+  width: calc(100% - var(--space-6));
+  padding: var(--space-6) var(--space-5);
+  border-radius: var(--radius-lg);
+  z-index: var(--z-dialog);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity var(--dur-doorcheck-in) var(--ease-out-soft),
+              transform var(--dur-doorcheck-in) var(--ease-out-soft);
+}
+dialog#door-dialog::backdrop {
+  background: transparent;
+}
+dialog#door-dialog[open] {
+  opacity: 1;
+  transform: translateY(0);
+}
+dialog#door-dialog.is-closing {
+  opacity: 0;
+  transform: translateY(12px);
+  transition-duration: var(--dur-doorcheck-exit);
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog#door-dialog {
+    transform: none;
+    transition-duration: 150ms;
+  }
+}
+
+.door-check__headline {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-size: var(--fs-lg);
+  color: var(--vapor);
+  margin-bottom: var(--space-4);
+}
+.door-check__body {
+  color: var(--vapor-dim);
+  margin-bottom: var(--space-5);
+}
+
+/* name yourself — a lightweight local account: type a name (or don't) and it's
+   remembered next visit. No password, no Twitch needed. */
+.door-check__name-row { margin-bottom: var(--space-5); }
+.door-check__name-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--vapor-dim);
+  margin-bottom: var(--space-2);
+}
+.door-check__name {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-mono);
+  font-size: 16px; /* ≥16px: no iOS zoom-on-focus */
+  padding: 12px 14px;
+  background: var(--asphalt);
+  color: var(--vapor);
+  border: 1px solid var(--vapor-ghost);
+  border-radius: var(--radius-sm);
+}
+.door-check__name:focus-visible { outline: none; border-color: var(--sodium); }
+.door-check__name::placeholder { color: var(--vapor-ghost); }
+.door-check__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.door-check__btn {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: var(--asphalt);
+  color: var(--vapor);
+  border: 1px solid var(--vapor-ghost);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  min-height: 44px;
+  cursor: pointer;
+  animation: doorBtnIn var(--dur-doorcheck-in) var(--ease-out-soft) both;
+}
+.door-check__btn:nth-of-type(2) { animation-delay: var(--dur-doorcheck-stagger); }
+.door-check__btn:hover { border-color: var(--sodium); }
+@keyframes doorBtnIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .door-check__btn { animation: none; }
+}
+
+/* -------------------------------------------------------- THE RULES (#code)
+   Fully static, fully B1's — one signage plate, the NO CAR/NO TRIPOD/NO
+   PERMISSION stack hard-left, THE CODE, the bio, the bicycle, the closer. */
+.rules__stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  margin: var(--space-6) 0;
+}
+.rules__stack li {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 8vw, 56px);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: var(--vapor);
+  line-height: 1.05;
+}
+
+.rules__code {
+  counter-reset: code;
+  margin: var(--space-5) 0 var(--space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.rules__code li {
+  counter-increment: code;
+  font-family: var(--font-mono);
+  color: var(--vapor-dim);
+  padding-left: var(--space-5);
+  position: relative;
+}
+.rules__code li::before {
+  content: counter(code) '.';
+  position: absolute;
+  left: 0;
+  color: var(--vapor-ghost);
+}
+
+.rules__bicycle {
+  max-width: 460px;
+  margin: var(--space-7) 0;
+}
+
+.rules__bio {
+  max-width: 68ch;
+  color: var(--vapor-dim);
+}
+
+.rules__closer {
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  color: var(--vapor);
+  margin-top: var(--space-7);
+}
+
+/* ------------------------------------------------------------- footer */
+.site-footer {
+  padding: var(--space-7) var(--space-4) var(--space-8);
+  border-top: 1px solid var(--asphalt-raised);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--vapor-dim);
+}
+.site-footer a {
+  color: var(--vapor);
+  text-decoration: underline;
+  text-decoration-color: var(--sodium); /* links: one of the accent law's named exceptions */
+  text-underline-offset: 3px;
+}
+.site-footer a:hover {
+  color: var(--sodium);
+}
+
+/* "riding as X · [name yourself]" — the local sign-in indicator */
+.site-footer__identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  color: var(--vapor);
+}
+.site-footer__change {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  background: none;
+  border: 0;
+  padding: 4px 6px;
+  min-height: 44px;
+  color: var(--vapor);
+  text-decoration: underline;
+  text-decoration-color: var(--sodium);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.site-footer__change:hover,
+.site-footer__change:focus-visible { color: var(--sodium); outline: none; }

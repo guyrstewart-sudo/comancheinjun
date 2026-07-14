@@ -1,0 +1,296 @@
+/*
+ * tab.css — the receipt HUD, THE REWIRE overlay, toast, perforation. (NIGHTSHIFT, B4)
+ *
+ * WHAT: All B4 visuals. 375px-first; the receipt is a raised tab on the
+ *       bunker plate, blotter mono, right-aligned figures.
+ * WHY:  motion rows BUNKER-04..07 live here as CSS animations (clock-law
+ *       exempt); JS in receipt.js only flips classes.
+ * HOW:  Palette via B1 tokens (zero raw hex), durations/easings via B8
+ *       motion tokens. Two timing gaps have no published token yet — the
+ *       200ms rewire release beat (motion §5.4, "small unlisted release
+ *       beat") and the 300ms toast in/out — declared as local custom
+ *       properties below and flagged for B8 token adoption.
+ * GOTCHA: transform/opacity only (Motion Law 1). The .fx-rewire-shake and
+ *       .fx-drunk-wobble classes applied by receipt.js are B8's — never
+ *       redefined here.
+ */
+
+.tab-receipt,
+.rewire,
+.tab-toast {
+  /* FLAGGED for B8 token adoption (see file docstring) */
+  --tab-rewire-release: 200ms;
+  --tab-toast-fade: 300ms;
+  font-family: var(--font-blotter, ui-monospace, 'Cascadia Mono', Consolas, Menlo, 'Roboto Mono', 'Courier New', monospace);
+}
+
+/* ------------------------------------------------------------------ */
+/* the receipt                                                         */
+/* ------------------------------------------------------------------ */
+
+.tab-receipt {
+  background: var(--asphalt-raised);
+  color: var(--vapor);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  padding: 1rem 0.875rem 0.75rem;
+  max-width: 22rem;
+  margin-inline: auto;
+}
+
+.tab-receipt__head {
+  text-align: center;
+  color: var(--vapor);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.tab-receipt__head-line:first-child {
+  font-weight: 700;
+}
+
+.tab-receipt__head-line:nth-child(n + 2) {
+  color: var(--vapor-dim);
+  font-size: 0.75rem;
+}
+
+.tab-receipt__stamp {
+  text-align: center;
+  color: var(--vapor-dim); /* body-size copy on asphalt-raised — vapor-ghost fails AA here (A11Y fix) */
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border-block: 1px dashed var(--vapor-ghost);
+  padding-block: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.tab-receipt__lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-height: 2.5rem;
+}
+
+/* BUNKER-04 — receipt line print (option a: rise + fade, always safe under load) */
+@keyframes tabLinePrint {
+  from { transform: translateY(4px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+.tab-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  position: relative;
+  padding-block: 0.1rem;
+  animation: tabLinePrint var(--dur-receipt-line) var(--ease-out-soft) both;
+}
+
+.tab-line__label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.04em;
+}
+
+.tab-line__dots {
+  flex: 1;
+  border-bottom: 1px dotted var(--vapor-ghost);
+  transform: translateY(-0.25em);
+  min-width: 1rem;
+}
+
+.tab-line__amt {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  min-width: 2.5ch;
+}
+
+/* the ×2 / ×3 margin stamp — the bartender comped you */
+.tab-line__stamp {
+  position: absolute;
+  right: -0.25rem;
+  top: -0.35rem;
+  color: var(--vapor);
+  font-size: 0.6875rem;
+  transform: rotate(-8deg);
+  border: 1px solid var(--vapor-ghost);
+  padding: 0 0.2rem;
+  pointer-events: none;
+}
+
+.tab-receipt__total {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 0.4rem;
+  border-top: 1px solid var(--vapor-ghost);
+  margin-top: 0.5rem;
+  padding-top: 0.4rem;
+  font-size: 1.125rem;
+}
+
+.tab-receipt__total-num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.tab-receipt__total-unit {
+  color: var(--vapor-dim);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.tab-receipt__foot {
+  color: var(--vapor-dim); /* body-size copy on asphalt-raised — vapor-ghost fails AA here (A11Y fix) */
+  font-size: 0.6875rem;
+  text-align: center;
+  margin-top: 0.4rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* perforation — one torn row per stream-hour (BUNKER-05)              */
+/* ------------------------------------------------------------------ */
+
+.tab-perf svg {
+  display: block;
+  width: 100%;
+  height: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+@keyframes tabPerfGrow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.tab-perf__seg {
+  fill: none;
+  stroke: var(--vapor-ghost);
+  stroke-width: 1;
+  transform-origin: left;
+  animation: tabPerfGrow var(--dur-perforation-grow) var(--ease-out-soft) both;
+}
+
+/* ------------------------------------------------------------------ */
+/* THE REWIRE overlay (BUNKER-07)                                      */
+/* ------------------------------------------------------------------ */
+
+.rewire {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.rewire[hidden] {
+  display: none;
+}
+
+/* phase 1 DIM: 0 → 0.45, one ramp-step, 120ms linear-in (motion §5.4) */
+.rewire__backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--asphalt-deep);
+  opacity: 0;
+  transition: opacity var(--dur-rewire-dim) linear;
+}
+
+.rewire.is-dim .rewire__backdrop {
+  opacity: 0.45;
+}
+
+/* the unlisted 200ms release beat once phase 6 lands */
+.rewire.is-release .rewire__backdrop {
+  transition-duration: var(--tab-rewire-release);
+}
+
+.rewire__panel {
+  position: relative;
+  text-align: center;
+  padding: 1rem;
+  max-width: 90vw;
+}
+
+.rewire__sign {
+  min-height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* lawful fallback plate if fx/neon.js is unavailable — rank neon is a
+   sanctioned sodium spend (constitution §2) */
+.rewire__fallback {
+  font-family: var(--font-display, Haettenschweiler, 'Arial Narrow Bold', Impact, 'Franklin Gothic Medium', sans-serif);
+  font-size: clamp(2.5rem, 12vw, 5rem);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--sodium-hot);
+}
+
+/* RM dignity path: dim is an instant set, nothing transitions */
+.rewire.is-rm .rewire__backdrop {
+  transition: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* toast — one mono line, lower-left, 4s (BUNKER-07 phase 7)           */
+/* ------------------------------------------------------------------ */
+
+.tab-toast {
+  position: fixed;
+  left: 1rem;
+  /* home-indicator clearance: 1rem base + notch inset (0px fallback pre-viewport-fit) */
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  z-index: 61;
+  max-width: calc(100vw - 2rem);
+  background: var(--asphalt-raised);
+  color: var(--vapor);
+  font-size: 0.8125rem;
+  padding: 0.6rem 0.9rem;
+  border-left: 2px solid var(--vapor-ghost);
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity var(--tab-toast-fade) var(--ease-out-soft),
+    transform var(--tab-toast-fade) var(--ease-out-soft);
+  pointer-events: none;
+}
+
+.tab-toast[hidden] {
+  display: none;
+}
+
+.tab-toast.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ------------------------------------------------------------------ */
+/* reduced motion — real fallbacks, not a lobotomy (motion §8)         */
+/* ------------------------------------------------------------------ */
+
+@keyframes tabFadeOnly {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-line {
+    animation: tabFadeOnly 150ms var(--ease-standard) both;
+  }
+
+  .tab-perf__seg {
+    animation: none; /* instant reveal */
+  }
+
+  .tab-toast {
+    transform: none;
+    transition: opacity 150ms var(--ease-standard);
+  }
+}

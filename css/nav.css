@@ -1,0 +1,111 @@
+/**
+ * nav.css — the route card. (B1 / OPERATION NIGHTSHIFT)
+ *
+ * WHAT: five mono waypoints "taped" top-left, per constitution §8.5's
+ *       explicit nav law: "nav is five small mono waypoints taped top-left
+ *       like a route card" — no sticky header, no hamburger, no full-bleed bar.
+ * WHY:  the site's only chrome; it has to read as an object left on the bar,
+ *       not a web-app toolbar.
+ * HOW:  markup + text populated by main.js (nav labels flow through
+ *       strings.js `t()`, never hardcoded — architecture §11.3). `.is-active`
+ *       is toggled by main.js's scrollspy; the underline sweep itself is
+ *       B8's `.fx-nav-underline` utility (fx.css) — this file only lays out
+ *       the card and applies color/hover/focus states (GLOBAL-02/03).
+ * GOTCHA: the "tape" is a CSS-only pseudo-element (no image assets exist in
+ *       this project) — a translucent vapor strip, static, never animated.
+ */
+
+.route-card {
+  position: fixed;
+  top: var(--space-4);
+  left: var(--space-4);
+  z-index: var(--z-nav);
+  transform: rotate(-1.5deg);
+  background: var(--asphalt-raised);
+  border: 1px solid var(--vapor-ghost);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4) var(--space-2);
+  box-shadow: 0 4px 12px var(--asphalt-deep);
+}
+
+/* The tape strip — a static translucent rectangle, never animated. */
+.route-card::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 64px;
+  height: 20px;
+  transform: translateX(-50%) rotate(2deg);
+  background: color-mix(in srgb, var(--vapor) 22%, transparent);
+  border-radius: var(--radius-sm);
+}
+
+.route-card__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.route-card__link {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.02em;
+  color: var(--vapor-dim);
+  text-decoration: none;
+  padding: var(--space-1) var(--space-1);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  transition: color var(--dur-hover) var(--ease-standard);
+}
+
+.route-card__link:hover {
+  color: var(--vapor);
+}
+
+.route-card__link.is-active {
+  color: var(--vapor);
+}
+
+/* GLOBAL-04: active/current route indicator. The scaleX sweep/transition
+   itself is B8's `.fx-nav-underline` utility class (fx.css) — every nav
+   link's underline element carries BOTH `.route-card__underline` (this
+   file: position/color) AND `.fx-nav-underline` (fx.css: the transform
+   timeline + `.is-active` state). This file never redeclares transform. */
+.route-card__underline {
+  position: absolute;
+  left: var(--space-1);
+  right: var(--space-1);
+  bottom: 2px;
+  height: 2px;
+  background: var(--sodium);
+}
+
+/* MOBILE: below hero.css's own mobile/desktop split (760px, hero.css:63/162)
+   the hero masthead sits at top:12vh/left:16px — the same top-left corner
+   this card is taped to. Five stacked 44px waypoints push the card past
+   80px tall there and bury the masthead under it. Collapse to a single
+   scrollable row so the card stays about one waypoint tall (~78px) instead
+   of five, clearing the masthead on common phone heights. Tap targets stay
+   ≥44px (constitution GESTURES law) — only the card's own bottom padding
+   tightens, no waypoint shrinks. */
+@media (max-width: 759px) {
+  .route-card {
+    max-width: calc(100vw - (var(--space-4) * 2));
+    padding-bottom: var(--space-1);
+  }
+
+  .route-card__list {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .route-card__link {
+    flex: 0 0 auto;
+  }
+}

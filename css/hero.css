@@ -1,0 +1,207 @@
+/**
+ * css/hero.css — THE ROUTE zone layout + OSD. (OPERATION NIGHTSHIFT · B2)
+ *
+ * WHAT: Zone shell for the hero: full-height stage, canvas + gutter
+ *       mirror stacking, masthead logotype, blotter-mono OSD, hints,
+ *       and the sr-only drop list. 375px-first.
+ * WHY:  All hero MOTION is canvas-internal (02-motion §5.2) — this file
+ *       is layout and state-driven visibility only, so it carries zero
+ *       @keyframes and zero transitions to reduced-motion-guard.
+ * HOW:  Palette via tokens exclusively (zero raw hex — constitution §2).
+ *       REC ● / GHOST badge visibility is CSS-only off B1's
+ *       :root[data-state] stamp (arch §2.4) — no JS subscription needed.
+ * GOTCHA: .route-canvas gets its HEIGHT inline from route.js (stage
+ *       height minus the 72px waterline). Don't set it here or resize
+ *       math will fight the stylesheet. Type stacks are written literally
+ *       (constitution §3) pending B1 type tokens — swap if tokens.css
+ *       ships --font-display/--font-blotter names.
+ */
+
+#route {
+  position: relative;
+  min-height: 100svh;
+  background: var(--asphalt);
+  overflow: hidden;
+}
+
+.route-stage {
+  position: absolute;
+  inset: 0;
+  /* The ride roams on its own now — the drag-to-scrub gesture is gone, so the
+   * stage claims no pointer gesture and page scroll/zoom behave natively. */
+}
+
+.route-stage:focus-visible {
+  /* R2 ruling: sodium focus ring, exempt from the accent audit. */
+  outline: 2px solid var(--sodium);
+  outline-offset: 2px;
+}
+
+.route-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  /* height set inline by route.js — see file gotcha */
+}
+
+.route-mirror {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: block;
+  width: 100%;
+  height: 72px; /* the wet street — constitution §5 */
+  background: var(--asphalt-deep);
+  touch-action: pan-y pinch-zoom; /* keep pinch-zoom available — see .route-stage */
+}
+
+.route-mirror:focus-visible {
+  /* R2 ruling: sodium focus ring, exempt from the accent audit.
+   * Inset, not offset — #route clips overflow, so an outward ring on this
+   * bottom-edge control gets cut off on three sides. */
+  outline: 2px solid var(--sodium);
+  outline-offset: -2px;
+}
+
+/* ------------------------------------------------------------ masthead */
+
+/* THE ROUTE zone plate + subline are redundant with — and were colliding
+   with — the neon masthead, which IS the hero's heading (the artist's name).
+   Hidden visually (sr-only) so the <h2> still names the section for assistive
+   tech via the section's aria-labelledby, but nothing overlaps on screen. */
+#route .plate {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The name rides a clean band across the top. On mobile it clears the nav
+   row (a top strip there); on desktop it clears the taped nav card on the
+   left (see the 760px block). The neon SVG fills the band width. */
+.route-masthead {
+  position: absolute;
+  top: 88px; /* below the mobile nav row */
+  left: 16px;
+  right: 16px;
+  pointer-events: none; /* the stage underneath owns the jog gesture */
+}
+
+.route-sign {
+  margin: 0;
+  font-family: Haettenschweiler, "Arial Narrow Bold", Impact,
+    "Avenir Next Condensed", "Franklin Gothic Medium", sans-serif-condensed,
+    sans-serif;
+  font-size: clamp(32px, 11vw, 96px); /* fallback text only — the sign is SVG */
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--vapor);
+}
+
+/* the hand-drawn neon logotype (fx/neon.js) fills the band width; height
+   follows its own aspect so it never overflows sideways as it did before. */
+.route-sign svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 22vh;
+}
+
+.route-tagline {
+  margin: 12px 0 0;
+  max-width: 34ch;
+  font-family: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--vapor-dim);
+}
+
+/* ----------------------------------------------------------------- OSD */
+
+/* Moved to the bottom-right, mirroring the bottom-left hints — it reads like
+   a tape counter at the corner of the deck, not a badge stacked under the name. */
+.route-osd {
+  position: absolute;
+  bottom: 84px; /* just above the 72px waterline, level with .route-hints */
+  right: 16px;
+  text-align: right;
+  pointer-events: none;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono",
+    "Courier New", monospace;
+  font-size: 11px;
+  line-height: 1.7;
+  letter-spacing: 0.06em;
+  color: var(--vapor-dim);
+}
+
+.route-osd__badges > span {
+  margin-left: 10px;
+}
+
+/* Honesty law: REC ● exists ONLY while genuinely live; the ghost badge
+ * covers everything that isn't. Both are pure CSS off the state stamp. */
+.route-osd__rec {
+  display: none;
+  color: var(--vapor); /* not sodium — the accent list doesn't include REC */
+}
+
+:root[data-state="live"] .route-osd__rec { display: inline; }
+:root[data-state="live"] .route-osd__ghost { display: none; }
+
+/* vapor-dim, not vapor-ghost — this is real OSD copy over a live-painted
+ * canvas, not decorative fill; ghost's contrast floor can't be trusted here. */
+.route-osd__ghost { color: var(--vapor-dim); }
+
+.route-osd__night,
+.route-osd__counter { color: var(--vapor-dim); }
+
+/* ---------------------------------------------------------------- hints */
+
+.route-hints {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 84px; /* riding just above the waterline */
+  pointer-events: none;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono",
+    "Courier New", monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--vapor-dim);
+}
+
+.route-hint { margin: 0 0 4px; }
+.route-hint--hold { color: var(--vapor-dim); } /* real hint copy — see .route-osd__ghost note above */
+
+/* -------------------------------------------------- sr-only drop ledger */
+/* aria.heroCanvas promises every drop is also text — this is that text. */
+
+.route-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ------------------------------------------------------------- desktop */
+
+@media (min-width: 760px) {
+  /* clear the taped nav card on the left; sit the name in the top band */
+  .route-masthead { top: 24px; left: 172px; right: 32px; }
+  .route-osd { bottom: 92px; right: 24px; font-size: 12px; }
+  .route-hints { left: 48px; bottom: 92px; max-width: 46%; }
+  .route-tagline { font-size: 16px; }
+}

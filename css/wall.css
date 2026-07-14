@@ -1,0 +1,170 @@
+/**
+ * css/wall.css — THE WALL. (OPERATION NIGHTSHIFT, builder B7)
+ *
+ * WHAT: dive-bar polaroid wall — lineup-poster hierarchy, ember rim-light,
+ *       true neon for NIGHT MAYOR, a dead-sign archive. 375px-first.
+ * WHY:  physical type size reads as rank; the wall is memory, not a table.
+ * HOW:  wall.js sets --tilt / --flash-pos / --flash-r / --watts-intensity /
+ *       --name-scale / --rim-phase per card. fx.css's `.fx-rim-breathe`
+ *       and `.fx-sign-buzz` classes (B8) supply the actual keyframe
+ *       timelines — this file only lays out the glow layer's static shape.
+ * GOTCHA: zero raw hex — palette tokens only (constitution §2). Ember
+ *       (--sodium-ember) is decorative-only per the palette law, never
+ *       text — dead-sign names use --vapor-ghost ("dead lamps" is
+ *       literally its documented role). Font stacks use
+ *       var(--font-*, <constitution literal>) so they hold together
+ *       whether or not tokens.css ends up tokenizing typography.
+ */
+
+.wall-body { display: flex; flex-direction: column; gap: 2rem; padding: 1rem 0 2.5rem; }
+
+.wall-slate {
+  max-width: 44rem;
+  margin: 0;
+  font-family: var(--font-mono, ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--vapor-dim);
+}
+
+/* ---------------------------------------------------------- the mayor */
+
+.wall-marquee { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+
+.wall-mayor__sign { width: clamp(240px, 82vw, 560px); transform: rotate(var(--tilt, -2deg)); }
+.wall-mayor__sign svg { display: block; width: 100%; height: auto; }
+
+.wall-card--mayor { width: min(280px, 82vw); }
+.wall-card--mayor .wall-card__handle { font-size: calc(1.6rem * var(--name-scale, 1.7)); }
+
+/* ----------------------------------------------------------- the grid */
+
+.wall-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.1rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 640px)  { .wall-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .wall-grid { grid-template-columns: repeat(5, 1fr); } }
+
+.wall-card {
+  position: relative;
+  padding: 0.6rem 0.6rem 0.9rem;
+  background: var(--asphalt-raised);
+  border: 1px solid var(--asphalt-deep);
+  box-shadow: 0 8px 16px var(--asphalt-deep);
+  transform: rotate(var(--tilt, 0deg));
+}
+
+/* ember rim-light: the box, static; .fx-rim-breathe (fx.css) animates its opacity */
+.wall-card::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  z-index: -1;
+  background: radial-gradient(circle, var(--sodium-ember) 0%, transparent 72%);
+  opacity: calc(var(--watts-intensity, 0.3) * 0.55);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wall-card.fx-rim-breathe::after { animation: none !important; }
+}
+
+/* no photographs exist yet — an abstract seeded flash, not a picture */
+.wall-card__thumb {
+  aspect-ratio: 4 / 5;
+  margin-bottom: 0.5rem;
+  background:
+    radial-gradient(circle at var(--flash-pos, 50% 40%),
+      var(--sodium-hot) 0%, var(--asphalt-raised) var(--flash-r, 60%), var(--asphalt-deep) 100%);
+  border: 1px solid var(--asphalt-deep);
+}
+
+.wall-card__pin {
+  position: absolute;
+  top: -0.4rem;
+  left: 50%;
+  width: 0.6rem;
+  height: 0.6rem;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--sodium-ember);
+}
+/* the viewer's own card gets the sodium pushpin — the sole non-mayor accent on the wall */
+.wall-card.is-viewer .wall-card__pin { background: var(--sodium); }
+
+/* the sharpie stack: handle, then a smaller legend-only flavor tag */
+.wall-card__handle {
+  margin: 0 0 0.1rem;
+  font-family: var(--font-sharpie, "Segoe Print", "Bradley Hand", "Comic Sans MS", casual, cursive);
+  font-size: calc(1rem * var(--name-scale, 1));
+  line-height: 1.1;
+  color: var(--vapor);
+  word-break: break-word;
+}
+.wall-card__tag {
+  margin: 0 0 0.35rem;
+  transform: rotate(-2deg);
+  font-family: var(--font-sharpie, "Segoe Print", "Bradley Hand", "Comic Sans MS", casual, cursive);
+  font-size: 0.78rem;
+  color: var(--vapor-dim);
+}
+.wall-card__watts {
+  margin: 0;
+  font-family: var(--font-mono, ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--vapor-dim);
+}
+.wall-card__rank {
+  position: absolute;
+  top: 0.35rem;
+  right: -0.4rem;
+  padding: 0.1rem 0.3rem;
+  transform: rotate(7deg);
+  background: var(--asphalt);
+  border: 1px solid var(--asphalt-deep);
+  font-family: var(--font-mono, ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vapor-ghost);
+}
+
+/* ------------------------------------------------------ dead-sign archive */
+
+.wall-dead-wrap { padding-top: 1.25rem; border-top: 1px dashed var(--asphalt-raised); }
+
+.wall-dead {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wall-dead__item { opacity: 0.7; }
+.wall-dead__name {
+  margin: 0;
+  font-family: var(--font-display, Haettenschweiler, "Arial Narrow Bold", Impact, "Avenir Next Condensed", "Franklin Gothic Medium", sans-serif-condensed, sans-serif);
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--vapor-ghost); /* "dead lamps" is literally this token's documented role — never ember text */
+}
+.wall-dead__caption {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-mono, ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--vapor-dim); /* real sentences (legend story / afterhours line) at small size — vapor-ghost is large/decorative only */
+}
+
+.wall-empty {
+  font-family: var(--font-mono, ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace);
+  font-size: 0.85rem;
+  color: var(--vapor-dim);
+}

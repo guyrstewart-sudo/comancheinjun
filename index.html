@@ -1,0 +1,173 @@
+<!--
+  index.html — the single page, five zones. (B1 / OPERATION NIGHTSHIFT)
+  WHAT: the shell every other builder mounts into. charset first, then the
+        nine zone stylesheets in cascade order, the skip link, the nav route
+        card, five zone anchors (#route #bunker #take #wall #code), the
+        door-check dialog, and the footer.
+  WHY:  architecture §1 — one file = one owner, but this is the ONE file
+        every other builder's module reaches into by element id.
+  HOW:  every user-facing string here is intentionally EMPTY at author time
+        (except <title>/<meta description>, which architecture explicitly
+        requires as literal static copy for crawlers/link-unfurlers that
+        never run JS) — main.js populates the rest via strings.js `t()` on
+        boot and on every state:change (architecture §11.3).
+  GOTCHA: #tab-dock is B4's mount point, nested inside #bunker — B3
+        (bunker.js/chatdock.js) never touches it. data-state/data-afterhours
+        on <html> are sane static defaults; state.js overwrites them
+        synchronously as the very first thing main.js does.
+-->
+<!doctype html>
+<html lang="en" data-state="offline" data-afterhours="false">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cőmånčhé INjüń — asheville after midnight</title>
+  <meta name="description" id="meta-description" content="Two wheels, no permission. Asheville after midnight, lit one flash at a time. Live rides, photo drops, and the wall of regulars. Get home safe.">
+
+  <link rel="stylesheet" href="./css/tokens.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/nav.css">
+  <link rel="stylesheet" href="./css/hero.css">
+  <link rel="stylesheet" href="./css/bunker.css">
+  <link rel="stylesheet" href="./css/tab.css">
+  <link rel="stylesheet" href="./css/take.css">
+  <link rel="stylesheet" href="./css/wall.css">
+  <link rel="stylesheet" href="./css/fx.css">
+</head>
+<body>
+  <a href="#main" class="skip-link" id="skip-link">skip to main content</a>
+
+  <!-- the one shared dim layer (motion bible §3/§2.2) — B4's Rewire and
+       B6's lightbox drive it via NightFX.scrim(); the door check uses it
+       for its own entrance/exit (GLOBAL-06/07). -->
+  <div id="global-scrim" class="fx-scrim" aria-hidden="true"></div>
+
+  <nav id="site-nav" class="route-card">
+    <ul id="nav-list" class="route-card__list"></ul>
+  </nav>
+
+  <!-- door check — accessible native <dialog>, focus-trapped, first visit
+       only (storage ns 'ui' key 'doorChecked'). ESC = I'M GOOD. -->
+  <dialog id="door-dialog">
+    <h2 id="door-headline" class="door-check__headline"></h2>
+    <p id="door-body" class="door-check__body" aria-live="polite"></p>
+    <div class="door-check__name-row">
+      <label id="door-name-label" for="door-name" class="door-check__name-label"></label>
+      <input id="door-name" class="door-check__name" type="text" maxlength="24" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="door-check__actions">
+      <button type="button" id="door-btn-good" class="door-check__btn tap-target"></button>
+      <button type="button" id="door-btn-walk" class="door-check__btn tap-target"></button>
+    </div>
+  </dialog>
+
+  <main id="main">
+    <!-- ============================================================ -->
+    <section id="route" class="zone" aria-labelledby="route-sign">
+      <div class="zone__inner">
+        <div class="plate">
+          <h2 id="route-sign" class="plate-heading"></h2>
+          <p id="route-sub" class="plate-sub"></p>
+        </div>
+      </div>
+      <!-- B2 (hero/route.js) mounts THE ROUTE canvas + OSD directly into
+           this section root. -->
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="bunker" class="zone" aria-labelledby="bunker-sign">
+      <div class="zone__inner">
+        <div class="plate">
+          <h2 id="bunker-sign" class="plate-heading"></h2>
+          <p id="bunker-sub" class="plate-sub"></p>
+        </div>
+        <!-- B4 (tab/receipt.js) mounts THE TAB receipt HUD here. B3
+             (bunker.js/chatdock.js) never touches this node. -->
+        <div id="tab-dock"></div>
+      </div>
+      <!-- B3 (bunker.js: embed plate; chatdock.js: THE RAIL) mounts
+           directly into this section root, alongside #tab-dock. -->
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="take" class="zone" aria-labelledby="take-sign">
+      <div class="zone__inner">
+        <div class="plate">
+          <h2 id="take-sign" class="plate-heading"></h2>
+          <p id="take-sub" class="plate-sub"></p>
+        </div>
+      </div>
+      <!-- B6 (take/gallery.js) mounts the bar-table print scatter here. -->
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="wall" class="zone" aria-labelledby="wall-sign">
+      <div class="zone__inner">
+        <div class="plate">
+          <h2 id="wall-sign" class="plate-heading"></h2>
+          <p id="wall-sub" class="plate-sub"></p>
+        </div>
+      </div>
+      <!-- B7 (wall/wall.js) mounts the lineup + mayor neon here. -->
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="code" class="zone" aria-labelledby="rules-sign">
+      <div class="zone__inner">
+        <div class="plate">
+          <h2 id="rules-sign" class="plate-heading"></h2>
+          <p id="rules-sub" class="plate-sub"></p>
+        </div>
+
+        <h3 id="rules-plate-title" class="plate-sub" style="font-size:var(--fs-md);color:var(--vapor);"></h3>
+        <ol id="rules-code" class="rules__code"></ol>
+
+        <ul id="rules-stack" class="rules__stack" aria-hidden="false"></ul>
+
+        <svg id="bicycle-svg" class="rules__bicycle" viewBox="0 0 600 260" role="img" aria-label="">
+          <!-- decorative lamp cone, sits behind the bicycle -->
+          <defs>
+            <radialGradient id="lampCone" cx="50%" cy="0%" r="100%">
+              <stop offset="0%" stop-color="var(--sodium)" stop-opacity="0.28" />
+              <stop offset="100%" stop-color="var(--sodium)" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+          <polygon points="500,30 545,30 575,220 470,220" fill="url(#lampCone)" />
+          <circle cx="522" cy="24" r="9" fill="var(--sodium-hot)" />
+          <line x1="522" y1="33" x2="522" y2="220" stroke="var(--vapor-ghost)" stroke-width="4" stroke-linecap="round" />
+          <!-- the site's one illustration: a single continuous-line bicycle -->
+          <path
+            d="M140,190 m-55,0 a55,55 0 1,0 110,0 a55,55 0 1,0 -110,0
+               M420,190 m-55,0 a55,55 0 1,0 110,0 a55,55 0 1,0 -110,0
+               M140,190 L235,100 L330,90 M235,100 L270,190 L420,190 M270,190 L140,190
+               M330,90 L302,64 M330,90 L356,72 M228,96 L242,104"
+            fill="none" stroke="var(--vapor)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+
+        <h3 id="rules-bio-title" class="plate-sub" style="font-size:var(--fs-md);color:var(--vapor);"></h3>
+        <p id="rules-bio" class="rules__bio"></p>
+
+        <p id="rules-closer" class="rules__closer"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="zone__inner">
+      <p id="footer-identity" class="site-footer__identity">
+        <span id="footer-riding"></span>
+        <button type="button" id="footer-change-name" class="site-footer__change tap-target"></button>
+      </p>
+      <p id="footer-integrity" class="plate-sub"></p>
+      <p>
+        <a id="footer-instagram" href="#" class="tap-target" rel="noopener"></a>
+        ·
+        <a id="footer-facebook" href="#" class="tap-target" rel="noopener"></a>
+      </p>
+      <p id="footer-signoff" class="plate-sub"></p>
+    </div>
+  </footer>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

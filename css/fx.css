@@ -1,0 +1,297 @@
+/**
+ * css/fx.css — the shared motion vocabulary. (OPERATION NIGHTSHIFT, B8)
+ * WHAT: every .fx-* class + @keyframes from the Motion Bible §2.2, the
+ *       neon sign skin, afterhours variants, reduced-motion covenant.
+ * WHY:  one owner for every primitive so eleven call sites can't invent
+ *       eleven timings. Zones apply class names; numbers live here and in
+ *       tokens.css (B1 declares the --dur- and --ease- tokens — never redeclared here).
+ * HOW:  blocks trace to 02-motion.md rows (IDs in comments). Afterhours
+ *       keys off :root[data-afterhours="true"] (stamped by state.js).
+ * GOTCHA: two deliberate fixes to the bible's paste blocks, flagged inline:
+ *       (1) fill keyword is `forwards` (the doc's `forward` is not CSS);
+ *       (2) .fx-flash-pop--soft rides --fx-flash-peak — a bare opacity:.3
+ *       would be overridden by the keyframes it modifies.
+ */
+
+/* ---- SIGN BUZZ — GLOBAL-01/08, WALL-03. Snaps like electricity:
+ * paired-percentage holds under steps(1, jump-end). ---- */
+@keyframes fxSignBuzz {
+  0%   { opacity: 1; }
+  22%  { opacity: 1; }
+  25%  { opacity: .35; }
+  28%  { opacity: .35; }
+  30%  { opacity: 1; }
+  55%  { opacity: 1; }
+  58%  { opacity: .7; }
+  62%  { opacity: .7; }
+  65%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+.fx-sign-buzz {
+  animation: fxSignBuzz calc(var(--dur-sign-buzz) * var(--afterhours-scale-buzz)) steps(1, jump-end) both;
+}
+
+/* ---- LAMPPOST FLICKER — the zone signs flicker like sodium streetlamps
+ * (client request). Mostly lit, a few quick dips per cycle; each sign seeded to
+ * a different phase (--lamp-delay, main.js) so they never flicker in unison. A
+ * warm sodium glow makes them read as lamp-lit, not just fading. ---- */
+@keyframes fxLampFlicker {
+  0%, 3%   { opacity: 1; }
+  4%       { opacity: 0.42; }
+  5%       { opacity: 1; }
+  5.6%     { opacity: 0.62; }
+  6%       { opacity: 1; }
+  32%      { opacity: 1; }
+  33%      { opacity: 0.7; }
+  33.6%    { opacity: 1; }
+  60%      { opacity: 1; }
+  61%      { opacity: 0.3; }
+  61.6%    { opacity: 0.88; }
+  62.1%    { opacity: 0.5; }
+  62.8%    { opacity: 1; }
+  88%      { opacity: 1; }
+  89%      { opacity: 0.6; }
+  89.7%    { opacity: 1; }
+  100%     { opacity: 1; }
+}
+.fx-lamp-flicker {
+  animation: fxLampFlicker 6s linear infinite;
+  animation-delay: var(--lamp-delay, 0s);
+  text-shadow: 0 0 20px color-mix(in srgb, var(--sodium) 26%, transparent);
+  will-change: opacity;
+}
+[data-afterhours="true"] .fx-lamp-flicker { animation-duration: 8.4s; } /* lamps tire after midnight */
+@media (prefers-reduced-motion: reduce) {
+  .fx-lamp-flicker { animation: none; opacity: 1; }
+}
+
+/* The designated bad filament (one letter per word, seeded — Determinism
+ * Law). Idles at 85% forever; two extra misfire dips inside the first
+ * ~400ms (44%) of any buzz cycle. Every one of them is named pete. */
+@keyframes fxBadFilament {
+  0%   { opacity: .85; }
+  6%   { opacity: .85; }
+  8%   { opacity: .3; }
+  10%  { opacity: .85; }
+  22%  { opacity: .85; }
+  25%  { opacity: .3; }
+  28%  { opacity: .3; }
+  30%  { opacity: .85; }
+  34%  { opacity: .85; }
+  36%  { opacity: .2; }
+  38%  { opacity: .85; }
+  55%  { opacity: .85; }
+  58%  { opacity: .6; }
+  62%  { opacity: .6; }
+  65%  { opacity: .85; }
+  100% { opacity: .85; }
+}
+.fx-sign-buzz--bad-filament {
+  opacity: .85;
+  animation: fxBadFilament calc(var(--dur-sign-buzz) * var(--afterhours-scale-buzz)) steps(1, jump-end) both;
+}
+
+/* 404-only: doubled misfire count, seeded upstream on the string "404". */
+@keyframes fxBadFilamentDense {
+  0%   { opacity: .85; }
+  4%   { opacity: .3; }
+  6%   { opacity: .85; }
+  10%  { opacity: .2; }
+  13%  { opacity: .85; }
+  18%  { opacity: .3; }
+  21%  { opacity: .85; }
+  25%  { opacity: .3; }
+  30%  { opacity: .85; }
+  34%  { opacity: .25; }
+  37%  { opacity: .85; }
+  44%  { opacity: .2; }
+  47%  { opacity: .85; }
+  58%  { opacity: .6; }
+  63%  { opacity: .85; }
+  78%  { opacity: .4; }
+  81%  { opacity: .85; }
+  100% { opacity: .85; }
+}
+.fx-sign-buzz--flickering .fx-sign-buzz--bad-filament,
+.fx-sign-buzz--flickering.fx-sign-buzz--bad-filament {
+  animation-name: fxBadFilamentDense;
+}
+
+/* ---- FLASH POP — HERO-06/07, TAKE-01, GLOBAL-07. Discrete steps(1) hold
+ * (a true strobe) + the decay curve. Peak rides --fx-flash-peak so --soft
+ * is a real modifier (bible fix #2). The 7th-pop double-fire is JS
+ * (fx/flash.js) — counted, not timed. ---- */
+@keyframes fxFlashHold  { from, to { opacity: var(--fx-flash-peak, 1); } }
+@keyframes fxFlashDecay { from { opacity: var(--fx-flash-peak, 1); } to { opacity: 0; } }
+.fx-flash-pop {
+  animation:
+    fxFlashHold  var(--dur-flash-hold) steps(1) forwards,
+    fxFlashDecay var(--dur-flash-decay) var(--ease-flash-decay) var(--dur-flash-hold) forwards;
+}
+.fx-flash-pop--soft { --fx-flash-peak: .3; } /* Take print landings */
+
+/* Structural helper: something must BE the overlay (the bible block is
+ * animation-only). Absolute covers a positioned parent (Take prints);
+ * --viewport is the site-wide overlay fx/flash.js owns. */
+.fx-flash-surface {
+  position: absolute;
+  inset: 0;
+  background: var(--flash); /* an overlay, never a content background */
+  opacity: 0;
+  pointer-events: none;
+}
+.fx-flash-surface--viewport {
+  position: fixed;
+  z-index: var(--z-flash, 9999);
+}
+
+/* ---- DRUNK WOBBLE — HERO-05, TAKE-01, BUNKER-07, WALL-02. One ~6%
+ * overshoot, one correction. Afterhours amp ×1.15 rides --fx-wobble-amp
+ * on the 55% stop only (bible §6); duration unchanged. ---- */
+@keyframes fxDrunkWobble {
+  0%   { transform: scale(0.94) translateY(6px); }
+  55%  { transform: scale(calc(1 + 0.03 * var(--fx-wobble-amp, 1))) translateY(-2px); }
+  100% { transform: scale(1) translateY(0); }
+}
+.fx-drunk-wobble { animation: fxDrunkWobble var(--dur-wobble) var(--ease-wobble) both; }
+
+/* ---- PUDDLE RIPPLE — GLOBAL-10. Spawned ONLY per bible §7 (fx/flash.js
+ * rippleAt); container must be positioned. Not a generic click ripple. ---- */
+@keyframes fxPuddleRipple {
+  0%   { transform: translate(-50%, -50%) scale(0); stroke-opacity: .5; }
+  100% { transform: translate(-50%, -50%) scale(1); stroke-opacity: 0; }
+}
+.fx-puddle-ripple {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 88px;  /* 2x the 44px tap target — reads as the touch, not the ring */
+  height: 88px;
+  animation: fxPuddleRipple var(--dur-ripple) var(--ease-ripple) forwards;
+  pointer-events: none;
+}
+.fx-puddle-ripple circle {
+  fill: none;
+  stroke: var(--vapor); /* accent ceiling: the ripple is witness, not neon */
+  stroke-width: 2;
+}
+
+/* ---- REWIRE SHAKE — BUNKER-07 phase 4. Electric family: discrete steps. ---- */
+@keyframes fxRewireShake {
+  0%, 100% { transform: translateX(0); }
+  12.5%    { transform: translateX(4px); }
+  37.5%    { transform: translateX(-4px); }
+  62.5%    { transform: translateX(4px); }
+  87.5%    { transform: translateX(-4px); }
+}
+.fx-rewire-shake { animation: fxRewireShake var(--dur-rewire-shake) steps(8, jump-end) 1; }
+
+/* ---- SCRIM — GLOBAL-09. ONE shared dim node (B1 owns the element);
+ * opacity/duration/easing set per call via fx/flash.js scrim(). ---- */
+.fx-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--asphalt-deep);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---- NAV UNDERLINE — GLOBAL-04. scaleX from the left, never width. ---- */
+.fx-nav-underline {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-nav-underline) var(--ease-out-soft);
+}
+.fx-nav-underline.is-active { transform: scaleX(1); }
+
+/* ---- RIM BREATHE — WALL-01. Opacity-only glow layer (never box-shadow —
+ * blur animation repaints every frame). B7 paints the ::after gradient;
+ * --watts-intensity set once per WATTS change; --rim-phase seeded per
+ * polaroid so 40 don't breathe in unison. ---- */
+@keyframes fxRimBreathe {
+  0%, 100% { opacity: calc(var(--watts-intensity) * 0.6); }
+  50%      { opacity: calc(var(--watts-intensity) * 1.0); }
+}
+.fx-rim-breathe::after {
+  animation: fxRimBreathe var(--dur-rim-breathe) var(--ease-standard) infinite;
+  animation-delay: var(--rim-phase, 0ms);
+}
+
+/* ---- DEVELOP SCRUB — TAKE-04. THE named filter exception (Law 1 / R3):
+ * the photograph's own narrative transform, one element at a time, 1:1
+ * with the finger. No timing function at all. ---- */
+.fx-develop-scrub {
+  --develop: 0; /* 0 undeveloped → 1 developed; set inline by JS on pointermove */
+  filter: brightness(calc(0.15 + 0.85 * var(--develop))) contrast(calc(0.7 + 0.3 * var(--develop)));
+}
+
+/* ---- NEON SIGN SKIN — fx/neon.js output (constitution §3: cheap double-
+ * stroke, zero filters). Sodium is sanctioned here: logotype/rank/mayor. ---- */
+.neon-sign { display: block; overflow: visible; }
+.neon-sign path {
+  fill: none;
+  stroke-linecap: round; /* round caps = tube ends, and the hand at 2am */
+  stroke-linejoin: round;
+}
+.neon-glow { stroke: var(--sodium); stroke-width: 8; opacity: .18; }
+.neon-tube { stroke: var(--sodium-hot); stroke-width: 2; }
+/* dead mayors: die() REMOVES the glow layer from the DOM (zero runtime
+ * after death — bible §9); the tube rests as cold ember, never text */
+.neon-letter.is-dead .neon-tube { stroke: var(--sodium-ember); opacity: .55; }
+
+/* ---- GRAIN OVERLAY — fx/grain.js canvas host (host must be positioned). ---- */
+.fx-grain {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---- AFTERHOURS — 00:00–06:00 mutation (bible §6). Ambience slows,
+ * truth never does (Law 7: flash/rewire/ripple keep base timing). Base
+ * values (1) live in tokens.css (B1); only the mutation lives here. ---- */
+:root[data-afterhours="true"] {
+  --fx-wobble-amp: 1.15;          /* wobble overshoot ~6% → ~6.9% */
+}
+
+/* ---- REDUCED MOTION — the covenant (bible §8). A real fallback, not a
+ * lobotomy. Grain continues (ambient texture, not vestibular). Nav
+ * hover/focus/underline are functional micro-transitions: unaffected. ---- */
+@keyframes fxFlashRM {
+  0%   { opacity: 0; }
+  50%  { opacity: calc(var(--fx-flash-peak, 1) * 0.5); }
+  100% { opacity: 0; }
+}
+@keyframes fxSettleRM {
+  from { transform: scale(0.98) translateY(3px); }
+  to   { transform: scale(1) translateY(0); }
+}
+@keyframes fxRippleRM {
+  from { transform: translate(-50%, -50%) scale(1); stroke-opacity: .5; }
+  to   { transform: translate(-50%, -50%) scale(1); stroke-opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* signs render lit, static — no flicker, no misfires */
+  .fx-sign-buzz,
+  .fx-sign-buzz--flickering,
+  .fx-sign-buzz--bad-filament { animation: none; opacity: 1; }
+
+  /* pops → single 150ms fade in-and-out; double-fire collapses (JS side) */
+  .fx-flash-pop { animation: fxFlashRM 150ms var(--ease-standard) forwards; }
+
+  /* wobble → plain ease-out settle, no overshoot */
+  .fx-drunk-wobble { animation: fxSettleRM 200ms var(--ease-standard) both; }
+
+  /* ripple → opacity pulse at contact point, no radial expansion */
+  .fx-puddle-ripple { animation: fxRippleRM 150ms var(--ease-standard) forwards; }
+
+  /* nothing shakes. not negotiable. */
+  .fx-rewire-shake { animation: none; }
+
+  /* rim light → static glow at fixed WATTS-derived intensity */
+  .fx-rim-breathe::after {
+    animation: none;
+    opacity: calc(var(--watts-intensity, 0) * 0.8);
+  }
+}

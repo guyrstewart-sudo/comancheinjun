@@ -1,0 +1,393 @@
+/**
+ * css/bunker.css — THE BUNKER zone styling. (OPERATION NIGHTSHIFT, builder B3)
+ *
+ * WHAT: the embed plate (raised, 12px asphalt margin), the ghost slate, the
+ *       LIVE underline, and THE RAIL (chat log/messages/input). 375px-first;
+ *       ≥768px promotes the rail to a right sidebar (constitution §6).
+ * WHY:  "a screen in a dark room has edges — never full-bleed" plus "the
+ *       chat dock is the primary thumb surface below the embed on mobile."
+ * HOW:  slate-vs-embed visibility and the LIVE underline's pulse key off the
+ *       GLOBAL `html[data-state]` attribute B1's state.js stamps
+ *       (architecture §2.4 — zero JS needed for pure styling). Ghost Tape
+ *       zone tint is an opacity-only overlay (Motion Bible Law 1: transform/
+ *       opacity ONLY, never background-color, in a transition/@keyframes).
+ * GOTCHA: two durations this file needs (chat arrival 180ms, zone tint
+ *         400ms — motion bible BUNKER-01/BUNKER-03) have no matching entry
+ *         in B8's shared token list (§2.1 of the motion bible). Declared
+ *         locally below as --bunker-* custom properties rather than a bare
+ *         magic number, flagged for B8 to promote into the shared
+ *         vocabulary — see builder self-report. Everything else (easings,
+ *         --dur-live-pulse, palette) uses the real shared tokens bare — zero
+ *         raw hex (motion bible §2.1); tokens.css loads first in index.html
+ *         so no fallback is needed.
+ */
+
+:root {
+  --bunker-arrival-ms: 180ms; /* motion bible BUNKER-01 — no shared token yet */
+  --bunker-tint-ms: 400ms;    /* motion bible BUNKER-03 — no shared token yet */
+}
+
+/* ------------------------------------------------------------ zone layout */
+
+#bunker {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas: "plate" "rail";
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  #bunker {
+    grid-template-columns: 1fr 320px;
+    grid-template-areas: "plate rail";
+    align-items: start;
+  }
+}
+
+/* ------------------------------------------------------------ the plate */
+
+.bunker-plate {
+  grid-area: plate;
+  background: var(--asphalt);
+  padding: 12px; /* the 12px asphalt margin — never full-bleed */
+}
+
+.bunker-plate-inner {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--asphalt-raised);
+}
+
+/* Ghost Tape zone tint: one ramp-step deeper, opacity-only overlay so the
+   transition stays inside Motion Bible Law 1 (never animate background-color
+   itself). Applies whenever the SURFACE is offline/afterhours — i.e.
+   whenever the slate, not the embed, is what's actually showing. */
+.bunker-plate-inner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: var(--asphalt-deep);
+  opacity: 0;
+  transition: opacity var(--bunker-tint-ms) var(--ease-out-soft, cubic-bezier(0.22, 1, 0.36, 1));
+}
+html[data-state="offline"] .bunker-plate-inner::before,
+html[data-state="afterhours"] .bunker-plate-inner::before {
+  opacity: 0.55;
+}
+
+.bunker-status {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  left: 8px;
+  margin: 0;
+  padding: 4px 8px;
+  font: 11px/1 ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vapor-dim);
+  background: color-mix(in srgb, var(--asphalt-deep) 50%, transparent); /* tokens-only, no raw hex (A11Y/taste fix) */
+}
+
+.bunker-embed,
+.bunker-slate {
+  position: absolute;
+  inset: 0;
+}
+.bunker-embed {
+  display: none;
+}
+.bunker-embed iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.bunker-slate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  text-align: center;
+}
+html[data-state="live"] .bunker-embed {
+  display: block;
+}
+html[data-state="live"] .bunker-slate {
+  display: none;
+}
+
+.bunker-slate-text {
+  margin: 0;
+  max-width: 42ch;
+  font: 13px/1.6 ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace;
+  color: var(--vapor-dim);
+}
+.bunker-slate-nightof {
+  margin: 0;
+  font: 11px/1 ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vapor-ghost);
+}
+
+/* THE one sodium element on the plate: a 2px underline, pulsing 72bpm,
+   [data-state=live] only (architecture §2.4 — the textbook CSS-only case). */
+.bunker-live-underline {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--sodium);
+  opacity: 0;
+}
+html[data-state="live"] .bunker-live-underline {
+  opacity: 0.6;
+  animation: bunkerLivePulse var(--dur-live-pulse, 833ms) var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1)) infinite;
+}
+@keyframes bunkerLivePulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------ the rail */
+
+.bunker-rail-host {
+  grid-area: rail;
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+  max-height: 70svh; /* svh not vh — stable viewport, matches hero.css:22 (mobile chrome show/hide must not resize the rail) */
+  background: var(--asphalt-raised);
+}
+
+.bunker-chat-log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+}
+
+.bunker-chat-empty {
+  margin: auto 0;
+  padding: 8px 0;
+  text-align: center;
+  font-style: italic;
+  color: var(--vapor-dim); /* body-size copy on asphalt-raised — vapor-ghost fails AA here (A11Y fix) */
+}
+
+.bunker-chat-error {
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--vapor-dim);
+  background: var(--asphalt);
+  border-left: 2px solid var(--sodium-ember); /* decorative border only — ember is never text */
+}
+
+.bunker-chat-msg {
+  font: 14px/1.4 system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--vapor);
+  word-wrap: break-word;
+}
+.bunker-chat-msg.is-ghost .bunker-chat-ts {
+  color: var(--vapor-dim); /* body-size copy on asphalt-raised — vapor-ghost fails AA here (A11Y fix) */
+}
+.bunker-chat-handle {
+  font-weight: 600;
+  margin-right: 6px;
+}
+.bunker-chat-ts {
+  margin-left: 6px;
+  font: 11px ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace;
+  color: var(--vapor-dim);
+}
+
+.bunker-chat-system {
+  text-align: center;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--vapor-dim);
+}
+.bunker-chat-system--slate {
+  color: var(--vapor-dim); /* body-size copy on asphalt-raised — vapor-ghost fails AA here (A11Y fix) */
+}
+
+.bunker-chat-msg--enter {
+  animation: bunkerChatIn var(--bunker-arrival-ms) var(--ease-out-soft, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+@keyframes bunkerChatIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bunker-chat-form {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--asphalt);
+}
+.bunker-chat-input {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 10px;
+  font-size: 16px; /* prevents iOS zoom-on-focus; also the spec'd size */
+  color: var(--vapor);
+  background: var(--asphalt);
+  border: 1px solid var(--asphalt-raised);
+}
+.bunker-chat-input::placeholder {
+  color: var(--vapor-ghost);
+}
+.bunker-chat-send {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 14px;
+  font: 12px ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vapor);
+  background: var(--asphalt-raised);
+  border: 1px solid var(--vapor-ghost);
+  cursor: pointer;
+}
+
+/* --------------------------------------------------- the sign-in strip (login)
+   Rides directly above the chat form: pick a name (local account, no password,
+   no Twitch) right where you talk. flex:none so it + the form stay pinned to
+   the bottom while the log scrolls above. The chosen name glows sodium — the
+   one warm "you're on the tab" signal, the site's single accent used with
+   intent (constitution §2). */
+.bunker-sign {
+  flex: none;
+  padding: 8px 12px;
+  border-top: 1px solid var(--asphalt);
+}
+.bunker-sign__form:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bunker-sign__label {
+  font: 10px/1 ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vapor-dim);
+}
+.bunker-sign__row {
+  display: flex;
+  gap: 8px;
+}
+.bunker-sign__hint {
+  margin: 0;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--vapor-dim);
+}
+.bunker-sign__input {
+  flex: 1;
+  min-width: 0; /* let the input shrink inside the flex row instead of overflowing */
+  min-height: 44px;
+  padding: 0 10px;
+  font-size: 16px; /* prevents iOS zoom-on-focus */
+  color: var(--vapor);
+  background: var(--asphalt);
+  border: 1px solid var(--asphalt-raised);
+}
+.bunker-sign__input::placeholder {
+  color: var(--vapor-ghost);
+}
+.bunker-sign__go {
+  flex: none;
+  min-height: 44px;
+  padding: 0 14px;
+  font: 12px ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vapor);
+  background: color-mix(in srgb, var(--sodium) 16%, var(--asphalt-raised));
+  border: 1px solid color-mix(in srgb, var(--sodium) 50%, transparent);
+  cursor: pointer;
+}
+.bunker-sign__go:hover {
+  background: color-mix(in srgb, var(--sodium) 26%, var(--asphalt-raised));
+}
+.bunker-sign__as:not([hidden]) {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+}
+.bunker-sign__aslabel {
+  font: 10px ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vapor-dim);
+}
+.bunker-sign__name {
+  font-weight: 600;
+  color: var(--sodium);
+  overflow-wrap: anywhere; /* a 24-char name never breaks the row */
+}
+.bunker-sign__change {
+  margin-left: auto;
+  align-self: center; /* the row is baseline-aligned; keep the 44px box from skewing it */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px; /* the 44px tap-target law — matches .site-footer__change / .door-check__btn */
+  padding: 2px 4px;
+  font-size: 12px;
+  color: var(--vapor-dim);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.bunker-sign__change:hover {
+  color: var(--vapor);
+}
+
+/* ------------------------------------------------------------ reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-state="live"] .bunker-live-underline {
+    animation: none;
+    opacity: 1;
+  }
+  .bunker-plate-inner::before {
+    transition-duration: 150ms;
+  }
+  .bunker-chat-msg--enter {
+    animation: bunkerChatFade 150ms var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1)) both;
+  }
+}
+@keyframes bunkerChatFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

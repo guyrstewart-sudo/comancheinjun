@@ -1,0 +1,107 @@
+<!--
+  404.html — "this block ain't lit." (B1 / OPERATION NIGHTSHIFT)
+  WHAT: the canon 404, self-contained (inline CSS, zero JS) so it renders
+        correctly regardless of which directory depth GitHub Pages serves
+        it from for a bad path.
+  WHY:  architecture §1 — 404.html must work standalone; it cannot depend
+        on ./css/*.css or ./js/*.js resolving from an arbitrary request path.
+  GOTCHA: the "back toward the glow" link uses a root-relative href="/".
+        That's correct for a user/custom-domain GitHub Pages deploy; if this
+        ships as a *project* page under a subpath (…github.io/nightshift/),
+        that one href needs the subpath prefixed at go-live — flagged for
+        the orchestrator, not guessable from here with zero JS allowed.
+        Copy is verbatim from docs/01-direction.md §9 (CANON, do not edit).
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>this block ain't lit · Cőmånčhé INjüń</title>
+<style>
+  :root {
+    --asphalt: #171009;
+    --vapor: #EAD9C0;
+    --vapor-dim: #C9B394;
+    --sodium: #FF9F1C;
+    --sodium-hot: #FFC46B;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--asphalt);
+    color: var(--vapor);
+    font-family: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  main {
+    max-width: 60ch;
+    text-align: left;
+  }
+  h1 {
+    font-family: Haettenschweiler, "Arial Narrow Bold", Impact, "Avenir Next Condensed", "Franklin Gothic Medium", sans-serif-condensed, sans-serif;
+    font-size: clamp(40px, 12vw, 96px);
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+    margin: 0 0 24px;
+    color: var(--vapor);
+  }
+  h1 .filament {
+    display: inline-block;
+    animation: buzz 900ms steps(1, jump-end) infinite;
+    animation-delay: -180ms; /* doubled misfire density, GLOBAL-08 */
+  }
+  p {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono", "Courier New", monospace;
+    color: var(--vapor-dim);
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  a {
+    color: var(--sodium-hot);
+    text-decoration: underline;
+    text-decoration-color: var(--sodium);
+    text-underline-offset: 3px;
+  }
+  a:hover { color: var(--sodium); }
+  a:focus-visible {
+    outline: 2px solid var(--sodium);
+    outline-offset: 2px;
+  }
+  @keyframes buzz {
+    0%   { opacity: 1; }
+    22%  { opacity: 1; }
+    25%  { opacity: .35; }
+    28%  { opacity: .35; }
+    30%  { opacity: 1; }
+    45%  { opacity: 1; }
+    48%  { opacity: .5; }
+    52%  { opacity: .5; }
+    55%  { opacity: 1; }
+    65%  { opacity: 1; }
+    68%  { opacity: .7; }
+    72%  { opacity: .7; }
+    75%  { opacity: .85; }
+    100% { opacity: .85; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    h1 .filament { animation: none; opacity: 1; }
+  }
+</style>
+</head>
+<body>
+  <main>
+    <h1>this b<span class="filament">l</span>ock ain't lit</h1>
+    <p>
+      this block ain't lit. Lamp's dead or you're early. Walk back toward the glow.
+      It's the orange one. It's always the orange one.
+    </p>
+    <p><a href="/">&larr; back toward the glow</a></p>
+  </main>
+</body>
+</html>
