@@ -302,9 +302,9 @@ export const STRINGS = {
       changeName: 'name yourself',
       changeAgain: 'not you?',
       integrity: 'points are jokes, not currency. no purchases, no scarcity, no tricks — just watts and warmth.',
-      // the ONE real-money door — a gift, not a transaction: the site never
-      // charges you, but the man on the bike runs on coffee (and the occasional beer).
-      tip: 'off the clock, though — buy cőmånčhé a coffee or a beer. $5 →',
+      // the ONE real-money door lives as a static <a> in index.html (the tip
+      // jar → Comanche's Cash App) — a gift, not a transaction. Kept out of JS
+      // on purpose so nothing cached can hide it. See index.html .site-footer__tip.
       signoff: 'get home safe.',
     },
 
