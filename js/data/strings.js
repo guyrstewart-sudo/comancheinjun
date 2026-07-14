@@ -119,7 +119,6 @@ export const STRINGS = {
       counterLabel: 'TAPE', // prefix for the running tape counter
       scrubHint: 'drag sideways — the night obeys',
       rewindHint: 'backwards un-happens. the grain never does.',
-      holdPuddleHint: 'press the water. it remembers.',
     },
 
     // ------------------------------------------------------------ chat (THE RAIL)

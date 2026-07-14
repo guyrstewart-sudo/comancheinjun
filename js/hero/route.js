@@ -141,7 +141,6 @@ function buildDom() {
     console.error('[masthead neon] fell back to text —', err);
     h1.textContent = CONFIG.ARTIST_NAME; // a dead sign still says the name
   }
-  el('p', 'route-tagline', masthead).textContent = str('hero.tagline', mode);
 
   const osd = el('div', 'route-osd', stage);
   const badges = el('div', 'route-osd__badges', osd);
@@ -155,7 +154,9 @@ function buildDom() {
   hintEl = el('p', 'route-hint', hints);
   hintDefault = ''; // no scrub hint — the ride just roams; only the mirror hint shows
   setHint(hintDefault, 0);
-  el('p', 'route-hint route-hint--hold', hints).textContent = str('osd.holdPuddleHint', mode);
+  // the tagline rides down here at the waterline now (moved out of the
+  // masthead); the old "press the water" puddle hint is retired.
+  el('p', 'route-tagline', hints).textContent = str('hero.tagline', mode);
 
   // a11y: every drop is also plain text (aria.heroCanvas promises this).
   const list = el('ol', 'route-sr', stage);

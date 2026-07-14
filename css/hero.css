@@ -170,6 +170,10 @@
   left: 16px;
   right: 16px;
   bottom: 84px; /* riding just above the waterline */
+  /* the tagline lives here now — reserve ~200px on the right for the OSD so the
+     two never collide on any phone width (constant ~34px gap). Desktop's
+     max-width:46% overrides this in the >=768px block below. */
+  max-width: calc(100vw - 200px);
   pointer-events: none;
   font-family: ui-monospace, "Cascadia Mono", Consolas, Menlo, "Roboto Mono",
     "Courier New", monospace;
@@ -179,7 +183,6 @@
 }
 
 .route-hint { margin: 0 0 4px; }
-.route-hint--hold { color: var(--vapor-dim); } /* real hint copy — see .route-osd__ghost note above */
 
 /* -------------------------------------------------- sr-only drop ledger */
 /* aria.heroCanvas promises every drop is also text — this is that text. */
