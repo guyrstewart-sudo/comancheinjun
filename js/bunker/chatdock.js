@@ -29,9 +29,13 @@ const MAX_ROWS = 150; // DOM cap, prune oldest
 let currentMode = 'normal';
 let isLiveSurface = false;
 let localName = ''; // the visitor's chosen name (their line shows it, not 'you')
+let localAvatar = ''; // the visitor's chosen photo (data URL) — feeds their WALL card
 let editingSign = false; // "change" clicked while named → show the input again
 let logEl, formEl, inputEl, sendEl, errorBannerEl, emptyStateEl;
 let signWrap, signForm, signLabel, signInput, signGo, signHint, signAsEl, signAsLabel, signNameEl, signChangeEl;
+let signPhotoEl, signAvatarImg, signAvatarPlaceholder, signPhotoBtn, signFileInput, signPhotoHint;
+
+const AVATAR_MAX_DIM = 320; // downscale target — keeps the data URL small enough for localStorage
 let rows = [];
 let queue = [];
 let recentRenderTimes = []; // clock.now() of recent renders, rolling storm window
@@ -221,7 +225,40 @@ function buildSign() {
   signChangeEl.className = 'bunker-sign__change';
   signAsEl.append(signAsLabel, signNameEl, signChangeEl);
 
-  signWrap.append(signForm, signAsEl);
+  // --- the photo row: pick a face, and if you top the wall it runs the marquee.
+  // Always visible (independent of ghost/named) since a photo is identity, not a name.
+  signPhotoEl = document.createElement('div');
+  signPhotoEl.className = 'bunker-sign__photo';
+  signAvatarPlaceholder = document.createElement('span');
+  signAvatarPlaceholder.className = 'bunker-sign__avatar-empty';
+  signAvatarPlaceholder.setAttribute('aria-hidden', 'true');
+  signAvatarImg = document.createElement('img');
+  signAvatarImg.className = 'bunker-sign__avatar';
+  signAvatarImg.alt = '';
+  signAvatarImg.hidden = true;
+  signPhotoBtn = document.createElement('button');
+  signPhotoBtn.type = 'button';
+  signPhotoBtn.className = 'bunker-sign__addphoto';
+  signFileInput = document.createElement('input');
+  signFileInput.type = 'file';
+  signFileInput.accept = 'image/*';
+  signFileInput.className = 'bunker-sign__file';
+  signFileInput.hidden = true;
+  signPhotoHint = document.createElement('p');
+  signPhotoHint.className = 'bunker-sign__photohint';
+  signPhotoEl.append(signAvatarPlaceholder, signAvatarImg, signPhotoBtn, signFileInput, signPhotoHint);
+
+  signPhotoBtn.addEventListener('click', () => signFileInput.click());
+  signFileInput.addEventListener('change', () => {
+    const file = signFileInput.files && signFileInput.files[0];
+    signFileInput.value = ''; // let the same file be re-picked later
+    if (!file) return;
+    downscaleImage(file, AVATAR_MAX_DIM, (dataUrl) => {
+      if (dataUrl) bus.emit('identity:avatar:set', { avatar: dataUrl });
+    });
+  });
+
+  signWrap.append(signForm, signAsEl, signPhotoEl);
 
   applySignStrings();
 
@@ -258,6 +295,8 @@ function applySignStrings() {
   signAsLabel.textContent = t('chat.sign.as', currentMode);
   signChangeEl.textContent = t('chat.sign.change', currentMode);
   signWrap.setAttribute('aria-label', t('chat.sign.aria', currentMode));
+  signPhotoBtn.textContent = t(localAvatar ? 'chat.sign.changePhoto' : 'chat.sign.addPhoto', currentMode);
+  signPhotoHint.textContent = t('chat.sign.photoHint', currentMode);
 }
 
 // Toggle between the "pick a name" form and the "on the tab as NAME" line.
@@ -268,6 +307,41 @@ function renderSign() {
   signAsEl.hidden = !named;
   if (named) signNameEl.textContent = localName;
   else signInput.value = localName; // prefill so editing tweaks rather than retypes
+}
+
+// Show the chosen photo (or the empty placeholder) and flip the button label.
+function renderAvatar() {
+  if (!signPhotoEl) return;
+  const has = !!localAvatar;
+  signAvatarImg.hidden = !has;
+  signAvatarPlaceholder.hidden = has;
+  if (has) signAvatarImg.src = localAvatar;
+  signPhotoBtn.textContent = t(has ? 'chat.sign.changePhoto' : 'chat.sign.addPhoto', currentMode);
+}
+
+// Downscale a picked image to a small square-ish data URL entirely client-side
+// (no upload, no server) so it fits in localStorage. onload is I/O, not a timer,
+// so this stays clear of the clock law. Calls back with null on any failure.
+function downscaleImage(file, maxDim, cb) {
+  try {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        let w = img.naturalWidth, h = img.naturalHeight;
+        const scale = Math.min(1, maxDim / Math.max(w, h));
+        w = Math.max(1, Math.round(w * scale));
+        h = Math.max(1, Math.round(h * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        cb(canvas.toDataURL('image/jpeg', 0.82));
+      } catch (_) { cb(null); }
+      finally { URL.revokeObjectURL(url); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); cb(null); };
+    img.src = url;
+  } catch (_) { cb(null); }
 }
 
 /**
@@ -306,6 +380,7 @@ export function initChatDock(hostEl) {
   formEl.append(inputEl, sendEl);
   hostEl.append(errorBannerEl, logEl, buildSign(), formEl);
   renderSign();
+  renderAvatar();
 
   formEl.addEventListener('submit', (ev) => {
     ev.preventDefault();
@@ -324,6 +399,10 @@ export function initChatDock(hostEl) {
   bus.on('chat:system', renderSystem);
   bus.on('chat:status', (status) => { if (status.connected) hideError(); });
   storage.get('identity', 'name').then((n) => { localName = (n || '').trim(); renderSign(); }).catch(() => {});
+  storage.get('identity', 'avatar').then((a) => { localAvatar = a || ''; renderAvatar(); }).catch(() => {});
   bus.on('identity:name', ({ name }) => { localName = (name || '').trim(); editingSign = false; renderSign(); });
+  bus.on('identity:avatar', ({ avatar }) => { localAvatar = avatar || ''; renderAvatar(); });
+  // footer "name yourself / not you?" routes here now that the door is gone
+  bus.on('identity:edit', () => { editingSign = true; renderSign(); signInput.focus(); signInput.select(); });
   clock.subscribe(drainQueue);
 }

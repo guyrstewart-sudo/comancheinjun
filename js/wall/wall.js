@@ -82,6 +82,13 @@ export async function init(rootEl) {
       const v = entries.find((e) => e.isViewer);
       if (v) { v.handle = (name || '').trim() || v.rankName || null; markDirty(); }
     });
+    // the visitor set/changed their photo — show it on their card (and the
+    // mayor marquee if they hold the seat). Stored on the entry so a re-render
+    // keeps it even before the next getViewerSnapshot.
+    bus.on('identity:avatar', ({ avatar }) => {
+      const v = entries.find((e) => e.isViewer);
+      if (v) { v.avatar = avatar || null; markDirty(); }
+    });
     clock.subscribe(onTick);
     onTabEvents({ onEarn: handleEarn, onRankup: handleRankup, onMayor: handleMayorEvt });
     render();
@@ -189,7 +196,9 @@ function cardEl(e, suppressBreathe) {
     `--name-scale:${(0.78 + e.rankIndex * 0.16).toFixed(2)}` +
     (breathe ? `;--rim-phase:${rangeInt('wall:rim:' + e.id, 0, RIM_CYCLE_MS)}ms` : ''));
   li.innerHTML =
-    `<div class="wall-card__thumb" aria-hidden="true"></div>` +
+    `<div class="wall-card__thumb" aria-hidden="true">` +
+      (e.avatar ? `<img class="wall-card__photo" src="${esc(e.avatar)}" alt="">` : '') +
+    `</div>` +
     `<span class="wall-card__pin" aria-hidden="true"></span>` +
     `<p class="wall-card__handle">${esc(e.handle)}</p>` +
     (e.sharpieTag ? `<p class="wall-card__tag">${esc(e.sharpieTag)}</p>` : '') +

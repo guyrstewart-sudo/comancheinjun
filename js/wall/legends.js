@@ -59,11 +59,12 @@ export const LEGEND_ENTRIES = Object.freeze(LEGENDS.map(normalizeLegend));
  * @returns {Promise<Object|null>}
  */
 export async function getViewerSnapshot() {
-  let identity = null, tabState = null;
+  let identity = null, tabState = null, avatar = null;
   try {
-    [identity, tabState] = await Promise.all([
+    [identity, tabState, avatar] = await Promise.all([
       storage.get('identity', 'visitor'),
       storage.get('tab', 'state'),
+      storage.get('identity', 'avatar'),
     ]);
   } catch { /* storage blocked — no viewer card this session */ }
   if (!tabState || !(tabState.total > 0)) return null;
@@ -81,6 +82,7 @@ export async function getViewerSnapshot() {
     dethroned: false,
     sharpieTag: null,
     oneLineStory: null,
+    avatar: avatar || null,
   };
 }
 

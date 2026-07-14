@@ -123,9 +123,6 @@
   --dur-mayor-letter:       150ms;  /* per-letter death stagger unit */
   --dur-mayor-stagger:      80ms;
   --dur-nav-underline:      220ms;
-  --dur-doorcheck-in:       320ms;
-  --dur-doorcheck-stagger:  80ms;
-  --dur-doorcheck-exit:     300ms;
 
   --ease-standard:      cubic-bezier(0.4, 0, 0.2, 1);         /* generic UI micro-transitions: hover, focus, color */
   --ease-inout-cubic:   cubic-bezier(0.65, 0, 0.35, 1);       /* count-ups, generic tweens */
@@ -133,7 +130,7 @@
   --ease-flash-decay:   cubic-bezier(0.05, 0.9, 0.1, 1);      /* FLASH POP decay */
   --ease-ripple:        cubic-bezier(0.16, 0.84, 0.28, 1);    /* PUDDLE RIPPLE expansion */
   --ease-bloom:         cubic-bezier(0.16, 1, 0.3, 1);        /* light arriving: lamp bloom, puddle ignite */
-  --ease-out-soft:      cubic-bezier(0.22, 1, 0.36, 1);       /* cinematic settle: door-check, lightbox, receipt, HUD */
+  --ease-out-soft:      cubic-bezier(0.22, 1, 0.36, 1);       /* cinematic settle: lightbox, receipt, HUD */
 
   /* AFTERHOURS scalars — read by CSS calc() AND mirrored into JS via the
      `afterhoursActive` flag on state:change (motion bible §6). Ambient/idle

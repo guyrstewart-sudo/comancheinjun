@@ -1,7 +1,7 @@
 /**
  * main.js — boot sequence. (B1 / OPERATION NIGHTSHIFT)
- * WHAT: state.init() → paint B1 strings (nav/signage/door/footer/rules) →
- *       wire door check + scrollspy + signage buzz → mount every zone by
+ * WHAT: state.init() → paint B1 strings (nav/signage/footer/rules) →
+ *       wire footer identity + scrollspy + signage buzz → mount every zone by
  *       dynamic import (own try/catch each) → select chat adapter →
  *       clock.start() → debug.freeze(). Architecture §10's boot sketch.
  * HOW:  sibling modules (hero/*, bunker/*, tab/*, take/*, wall/*, ghost/*,
@@ -21,7 +21,6 @@ import { range } from './core/rng.js';
 import * as state from './state.js';
 import { freeze as freezeDebug } from './debug.js';
 import { badFilamentIndex } from './fx/buzz.js';
-import { rippleAt } from './fx/flash.js';
 
 const ZONES = ['route', 'bunker', 'take', 'wall', 'rules']; // string-bank keys
 const ANCHOR = { route: 'route', bunker: 'bunker', take: 'take', wall: 'wall', rules: 'code' }; // rules lives at #code
@@ -40,6 +39,16 @@ function setVisitorName(raw) {
   try { storage.set('identity', 'name', currentName); } catch (_) { /* private mode */ }
   bus.emit('identity:name', { name: currentName });
   paintIdentityFooter();
+}
+
+/** Persist the visitor's chosen photo (a downscaled data URL). Same single-
+ *  writer rule as the name: surfaces REQUEST via 'identity:avatar:set', main.js
+ *  stores it and broadcasts 'identity:avatar' so the sign strip + THE WALL
+ *  update. Local-only (no server) — it rides on this browser, like the name. */
+function setVisitorAvatar(dataUrl) {
+  const avatar = dataUrl || '';
+  try { storage.set('identity', 'avatar', avatar); } catch (_) { /* private mode */ }
+  bus.emit('identity:avatar', { avatar });
 }
 
 /** Footer "riding as X · change" — the local sign-in indicator. */
@@ -89,9 +98,6 @@ function fillList(id, items) {
 
 const TEXT_MAP = {
   'skip-link': 'aria.skipToContent',
-  'door-headline': 'door.headline',
-  'door-btn-good': 'door.btnGood',
-  'door-btn-walk': 'door.btnWalk',
   'rules-plate-title': 'rules.plate',
   'rules-bio-title': 'rules.bioTitle',
   'rules-bio': 'rules.bio',
@@ -118,9 +124,6 @@ function renderStrings() {
     if (subEl) subEl.textContent = t(`zones.${z}.sub`, mode);
   }
 
-  const doorBody = document.getElementById('door-body');
-  if (doorBody && !doorBody.dataset.walked) doorBody.textContent = t('door.body', mode);
-  document.getElementById('door-dialog')?.setAttribute('aria-label', t('aria.doorDialog', mode));
   document.getElementById('site-nav')?.setAttribute('aria-label', t('nav.ariaLabel', mode));
 
   fillList('rules-code', t('rules.code', mode));
@@ -132,10 +135,6 @@ function renderStrings() {
   const fb = document.getElementById('footer-facebook');
   if (fb) { fb.href = CONFIG.SOCIAL.facebook; fb.textContent = t('footer.facebook.label', mode); }
 
-  const nameLabel = document.getElementById('door-name-label');
-  if (nameLabel) nameLabel.textContent = t('door.nameLabel', mode);
-  const nameInput = document.getElementById('door-name');
-  if (nameInput) nameInput.placeholder = t('door.namePlaceholder', mode);
   paintIdentityFooter();
 }
 
@@ -205,72 +204,17 @@ function wireNavReplay() {
   });
 }
 
-/* -------------------------------------------------------- door check */
+/* ------------------------------------------------------ footer identity */
 
-async function wireDoorCheck() {
-  const dialog = document.getElementById('door-dialog');
-  const good = document.getElementById('door-btn-good');
-  const walk = document.getElementById('door-btn-walk');
-  const scrim = document.getElementById('global-scrim');
-  if (!dialog || !good || !walk) return;
-
-  const nameInput = document.getElementById('door-name');
-
-  const seal = () => {
-    storage.set('ui', 'doorChecked', true);
-    if (nameInput) setVisitorName(nameInput.value); // claim/keep the local name
-    scrim?.classList.remove('is-visible');
-    dialog.classList.add('is-closing');
-    // Ride the clock, not `transitionend` — the exit fade is decorative and
-    // must not gate a functional state change on the render pipeline
-    // actually ticking (clock law's whole point: forceTick must be able to
-    // drive this exactly like real playback, verification browser included).
-    let elapsed = 0;
-    const off = clock.subscribe((deltaMs) => {
-      elapsed += deltaMs;
-      if (elapsed < 300) return;
-      off();
-      if (dialog.open) dialog.close();
-    });
-  };
-
-  // GLOBAL-10 spawn table: the door buttons are a sanctioned ripple site —
-  // rain hitting the reflection right where the thumb said yes.
-  dialog.addEventListener('pointerdown', (e) => {
-    if (e.target === good || e.target === walk) {
-      const r = dialog.getBoundingClientRect();
-      try { rippleAt(e.clientX - r.left, e.clientY - r.top, dialog); } catch (_) { /* decorative */ }
-    }
-  });
-
-  good.addEventListener('click', seal);
-  walk.addEventListener('click', () => {
-    const body = document.getElementById('door-body');
-    if (!walk.dataset.confirmed) {
-      if (body) { body.textContent = t('door.walkExit', mode); body.dataset.walked = '1'; }
-      walk.textContent = t('door.btnGood', mode);
-      walk.dataset.confirmed = '1';
-      return;
-    }
-    seal();
-  });
-  dialog.addEventListener('cancel', (e) => { e.preventDefault(); seal(); }); // ESC = I'M GOOD
-
-  // footer "name yourself / not you?" reopens the door to (re)claim a name
+/** The footer "name yourself / not you?" button sends the visitor to the
+ *  sign-the-tab strip in THE BUNKER (the one, canonical naming surface now
+ *  that the door entry gate is gone) — scroll it into view and ask chatdock
+ *  to open + focus its name field via the bus. */
+function wireFooterIdentity() {
   document.getElementById('footer-change-name')?.addEventListener('click', () => {
-    if (dialog.open || typeof dialog.showModal !== 'function') return;
-    if (nameInput) nameInput.value = currentName;
-    scrim?.classList.add('is-visible');
-    dialog.showModal();
-    nameInput?.focus();
+    document.getElementById('bunker')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    bus.emit('identity:edit', {});
   });
-
-  const already = await storage.get('ui', 'doorChecked');
-  if (nameInput) nameInput.value = currentName; // prefill on reopen / return
-  if (!already && typeof dialog.showModal === 'function') {
-    scrim?.classList.add('is-visible');
-    dialog.showModal();
-  }
 }
 
 /* ------------------------------------------------------- reduced motion */
@@ -345,11 +289,12 @@ async function boot() {
   wireSignageBuzz();
   wireNavReplay();
   wireReducedMotion();
-  await wireDoorCheck();
+  wireFooterIdentity();
 
-  // Any surface (the chat-side sign strip, the door, the footer) can REQUEST a
+  // Any surface (the chat-side sign strip, the footer) can REQUEST a
   // name; main.js is the sole writer — it persists + broadcasts 'identity:name'.
   bus.on('identity:set', ({ name }) => setVisitorName(name));
+  bus.on('identity:avatar:set', ({ avatar }) => setVisitorAvatar(avatar));
 
   bus.on('state:change', (payload) => {
     mode = payload.afterhoursActive ? 'afterhours' : 'normal';

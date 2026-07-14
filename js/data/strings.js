@@ -102,24 +102,6 @@ export const STRINGS = {
       rules: { sign: 'THE RULES', sub: 'three rules and a bicycle.' },
     },
 
-    // ------------------------------------------------------------ the door check (the one that loves you)
-    door: {
-      headline: 'DOOR CHECK',
-      body:
-        "house rule, and there's only the one: this is a bar-shaped website for people " +
-        'who are out past midnight on purpose. it flashes, it flickers, it gets loud ' +
-        'in the quiet way. nobody here will ever be mean to you, and nobody leaves alone. ' +
-        'you good?',
-      btnGood: "I'M GOOD", // CANON
-      btnWalk: 'WALK ME HOME', // CANON
-      walkExit:
-        "good call — that's the strongest button in the house. water, phone on the charger, " +
-        "text somebody you love. the night keeps. we'll leave the lamp on for you. " +
-        "it's the orange one. it's always the orange one.",
-      nameLabel: 'what do we call you?',
-      namePlaceholder: 'pick a name — or stay a ghost',
-    },
-
     // ------------------------------------------------------------ hero + OSD (DOM, not canvas)
     hero: {
       tagline: 'Two wheels, no permission. Asheville after midnight, lit one flash at a time.', // CANON
@@ -158,6 +140,9 @@ export const STRINGS = {
         as: 'on the tab as',
         change: 'not you?',
         aria: 'name yourself — a local account, remembered next time',
+        addPhoto: '+ add a photo',
+        changePhoto: 'change photo',
+        photoHint: 'top the wall and your face runs the marquee.',
       },
     },
 
@@ -336,7 +321,6 @@ export const STRINGS = {
       chatInput: 'chat message input',
       hudReceipt: 'your points receipt — watts earned this session',
       wallList: 'the wall — regulars ranked by watts, highest first',
-      doorDialog: 'door check — a quick welcome before you enter',
       print: 'photo print. open to view it full size.',
       developScrub: 'brightness — up/down arrows or drag sideways; the photo starts fully lit. click anywhere off the photo, or press escape, to close.',
       closeLightbox: 'close the print viewer',
@@ -357,12 +341,6 @@ export const STRINGS = {
       take: { sub: 'the prints get stranger after midnight. so do the subjects.' },
       wall: { sub: 'squint. the bright ones are the ones who stayed.' },
       rules: { sub: "same three rules. they don't loosen. that's what makes them rules." },
-    },
-    door: {
-      body:
-        "after midnight now, so you already know the drill: it flashes, it flickers, " +
-        'nobody mean gets in, nobody leaves alone. the site is one drink looser and ' +
-        'so are we. same religion though. you good?',
     },
     osd: {
       checking: "checking the street... it's late, give it a second.",
@@ -393,7 +371,7 @@ export const STRINGS = {
 
 /**
  * Resolve a dotted LEAF path against the active mode, falling back to normal.
- * `t('door.body', 'afterhours')` → loose copy; `t('door.btnGood', 'afterhours')`
+ * `t('zones.bunker.sub', 'afterhours')` → loose copy; `t('chat.send', 'afterhours')`
  * → falls back to normal (buttons never change). Leaf keys only — see file docstring.
  * @param {string} path dotted path, e.g. 'zones.bunker.sub'
  * @param {StringMode} [mode='normal']
@@ -561,7 +539,7 @@ export const REGULARS = [
       'that exit at the taco spot. clean push, held the door, nod to the room. 9.2',
       'i have never given a 10. a 10 means you never come back. i want everyone back',
       'kenny. buddy. that is eleven goodbyes. the exit is a door, not a lifestyle',
-      'the door check on this site is right. WALK ME HOME is the strongest button i have ever seen on a computer',
+      'this site tells everybody to get home safe and means it. nobody leaves alone. 9.7. you know i dont hand those out',
       'saw a guy hug a lamppost tonight. checked on him. he was fine. he just loved the lamppost',
       'moth you talk whenever you are ready. no cover charge on words',
       'the meter thing was before my door. the story checks id everywhere though',
@@ -601,7 +579,7 @@ export const REGULARS = [
       'im at the DOOR. teo rate this. im basically outside',
       '2:15 status: found a dog outside. cant leave now. legally',
       'charlene the bus and i have an understanding. it leaves. i dont',
-      'the WALK ME HOME button called me out personally and honestly. respect',
+      'the site keeps gently telling me to get home safe. i heard it. im honoring it emotionally. from this stool',
       'ok NOW leaving. watch the map. if a flash pops near eagle st in twenty minutes thats me getting photographed leaving. legacy',
       '3am note: never made it past the second lamppost. it was the orange one. you know how it is',
       'leaving was invented by people who never found a good corner',

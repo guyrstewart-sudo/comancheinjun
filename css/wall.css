@@ -75,12 +75,23 @@
 
 /* no photographs exist yet — an abstract seeded flash, not a picture */
 .wall-card__thumb {
+  position: relative;
+  overflow: hidden;
   aspect-ratio: 4 / 5;
   margin-bottom: 0.5rem;
   background:
     radial-gradient(circle at var(--flash-pos, 50% 40%),
       var(--sodium-hot) 0%, var(--asphalt-raised) var(--flash-r, 60%), var(--asphalt-deep) 100%);
   border: 1px solid var(--asphalt-deep);
+}
+/* the visitor's own uploaded face, covering the seeded flash-gradient thumb */
+.wall-card__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .wall-card__pin {

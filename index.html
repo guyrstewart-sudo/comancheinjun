@@ -24,6 +24,23 @@
   <title>Cőmånčhé INjüń — asheville after midnight</title>
   <meta name="description" id="meta-description" content="Two wheels, no permission. Asheville after midnight, lit one flash at a time. Live rides, photo drops, and the wall of regulars. Get home safe.">
 
+  <!-- share card (Open Graph + Twitter) — absolute URLs so scrapers resolve
+       them off any page path. Update og:url/og:image host if the site moves. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Cőmånčhé INjüń">
+  <meta property="og:title" content="Cőmånčhé INjüń — asheville after midnight">
+  <meta property="og:description" content="Two wheels, no permission. Asheville after midnight, lit one flash at a time. Live rides, photo drops, and the wall of regulars.">
+  <meta property="og:url" content="https://guyrstewart-sudo.github.io/comancheinjun/">
+  <meta property="og:image" content="https://guyrstewart-sudo.github.io/comancheinjun/assets/og.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Cőmånčhé INjüń — asheville after midnight">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Cőmånčhé INjüń — asheville after midnight">
+  <meta name="twitter:description" content="Two wheels, no permission. Asheville after midnight, lit one flash at a time.">
+  <meta name="twitter:image" content="https://guyrstewart-sudo.github.io/comancheinjun/assets/og.jpg">
+
   <link rel="stylesheet" href="./css/tokens.css">
   <link rel="stylesheet" href="./css/base.css">
   <link rel="stylesheet" href="./css/nav.css">
@@ -38,28 +55,12 @@
   <a href="#main" class="skip-link" id="skip-link">skip to main content</a>
 
   <!-- the one shared dim layer (motion bible §3/§2.2) — B4's Rewire and
-       B6's lightbox drive it via NightFX.scrim(); the door check uses it
-       for its own entrance/exit (GLOBAL-06/07). -->
+       B6's lightbox drive it via NightFX.scrim(). -->
   <div id="global-scrim" class="fx-scrim" aria-hidden="true"></div>
 
   <nav id="site-nav" class="route-card">
     <ul id="nav-list" class="route-card__list"></ul>
   </nav>
-
-  <!-- door check — accessible native <dialog>, focus-trapped, first visit
-       only (storage ns 'ui' key 'doorChecked'). ESC = I'M GOOD. -->
-  <dialog id="door-dialog">
-    <h2 id="door-headline" class="door-check__headline"></h2>
-    <p id="door-body" class="door-check__body" aria-live="polite"></p>
-    <div class="door-check__name-row">
-      <label id="door-name-label" for="door-name" class="door-check__name-label"></label>
-      <input id="door-name" class="door-check__name" type="text" maxlength="24" autocomplete="off" spellcheck="false">
-    </div>
-    <div class="door-check__actions">
-      <button type="button" id="door-btn-good" class="door-check__btn tap-target"></button>
-      <button type="button" id="door-btn-walk" class="door-check__btn tap-target"></button>
-    </div>
-  </dialog>
 
   <main id="main">
     <!-- ============================================================ -->

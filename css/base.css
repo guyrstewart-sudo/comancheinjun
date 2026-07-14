@@ -165,10 +165,9 @@ main { display: block; }
    ONE DOM node, owned by B1 (motion bible §3 ownership key). THE REWIRE
    (B4) and the Lightbox (B6) drive its opacity via WAAPI (their own
    per-call duration/easing — motion bible §2.2's GLOBAL-09 note) so they
-   never fight over two dim layers. B1 drives it directly with the
-   `.is-visible` class for the door check (GLOBAL-06/07), which is a
-   one-shot, non-overlapping use and so is permitted plain class-toggling
-   under Motion Law 4. */
+   never fight over two dim layers. The `.is-visible` class remains as a
+   plain CSS-transition affordance (Motion Law 4) for any future one-shot,
+   non-overlapping dim; nothing toggles it today. */
 .fx-scrim {
   position: fixed;
   inset: 0;
@@ -176,116 +175,14 @@ main { display: block; }
   opacity: 0;
   pointer-events: none;
   z-index: var(--z-scrim);
-  transition: opacity var(--dur-doorcheck-in) linear;
+  transition: opacity var(--dur-lightbox-dim) linear;
 }
 .fx-scrim.is-visible {
   opacity: 0.82;
-  transition-duration: var(--dur-doorcheck-exit);
+  transition-duration: var(--dur-lightbox-dim);
 }
 @media (prefers-reduced-motion: reduce) {
   .fx-scrim { transition-duration: 150ms; }
-}
-
-/* ------------------------------------------------------- door check (GLOBAL-06/07)
-   Native <dialog> for a real, zero-JS-cost focus trap + ESC handling.
-   Its own ::backdrop is neutralized — the shared .fx-scrim sits behind it
-   and does the "asphalt fades in" visual instead, per constitution's one
-   shared dim layer. */
-dialog#door-dialog {
-  border: 0;
-  background: var(--asphalt-raised);
-  color: var(--vapor);
-  max-width: 480px;
-  width: calc(100% - var(--space-6));
-  padding: var(--space-6) var(--space-5);
-  border-radius: var(--radius-lg);
-  z-index: var(--z-dialog);
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity var(--dur-doorcheck-in) var(--ease-out-soft),
-              transform var(--dur-doorcheck-in) var(--ease-out-soft);
-}
-dialog#door-dialog::backdrop {
-  background: transparent;
-}
-dialog#door-dialog[open] {
-  opacity: 1;
-  transform: translateY(0);
-}
-dialog#door-dialog.is-closing {
-  opacity: 0;
-  transform: translateY(12px);
-  transition-duration: var(--dur-doorcheck-exit);
-}
-@media (prefers-reduced-motion: reduce) {
-  dialog#door-dialog {
-    transform: none;
-    transition-duration: 150ms;
-  }
-}
-
-.door-check__headline {
-  font-family: var(--font-display);
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-  font-size: var(--fs-lg);
-  color: var(--vapor);
-  margin-bottom: var(--space-4);
-}
-.door-check__body {
-  color: var(--vapor-dim);
-  margin-bottom: var(--space-5);
-}
-
-/* name yourself — a lightweight local account: type a name (or don't) and it's
-   remembered next visit. No password, no Twitch needed. */
-.door-check__name-row { margin-bottom: var(--space-5); }
-.door-check__name-label {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  color: var(--vapor-dim);
-  margin-bottom: var(--space-2);
-}
-.door-check__name {
-  width: 100%;
-  box-sizing: border-box;
-  font-family: var(--font-mono);
-  font-size: 16px; /* ≥16px: no iOS zoom-on-focus */
-  padding: 12px 14px;
-  background: var(--asphalt);
-  color: var(--vapor);
-  border: 1px solid var(--vapor-ghost);
-  border-radius: var(--radius-sm);
-}
-.door-check__name:focus-visible { outline: none; border-color: var(--sodium); }
-.door-check__name::placeholder { color: var(--vapor-ghost); }
-.door-check__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
-.door-check__btn {
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  background: var(--asphalt);
-  color: var(--vapor);
-  border: 1px solid var(--vapor-ghost);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
-  min-height: 44px;
-  cursor: pointer;
-  animation: doorBtnIn var(--dur-doorcheck-in) var(--ease-out-soft) both;
-}
-.door-check__btn:nth-of-type(2) { animation-delay: var(--dur-doorcheck-stagger); }
-.door-check__btn:hover { border-color: var(--sodium); }
-@keyframes doorBtnIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .door-check__btn { animation: none; }
 }
 
 /* -------------------------------------------------------- THE RULES (#code)
