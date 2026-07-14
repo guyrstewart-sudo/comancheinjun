@@ -284,3 +284,36 @@ main { display: block; }
 }
 .site-footer__change:hover,
 .site-footer__change:focus-visible { color: var(--sodium); outline: none; }
+
+/* the tip jar — a warm sodium pill under the "points are jokes" line. The one
+   real-money door on the site, so it earns a little glow (links are a named
+   accent-law exception), but it stays a footer aside, never a hard sell. */
+.site-footer__tip-line {
+  margin: var(--space-4) 0;
+}
+.site-footer__tip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 8px 16px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--vapor); /* NOT the default footer-link underline — this is a pill */
+  text-decoration: none;
+  background: color-mix(in srgb, var(--sodium) 12%, var(--asphalt-raised));
+  border: 1px solid color-mix(in srgb, var(--sodium) 55%, transparent);
+  border-radius: var(--radius-full);
+  transition: background var(--dur-hover) var(--ease-standard),
+              border-color var(--dur-hover) var(--ease-standard);
+}
+.site-footer__tip:hover,
+.site-footer__tip:focus-visible {
+  color: var(--vapor);
+  background: color-mix(in srgb, var(--sodium) 22%, var(--asphalt-raised));
+  border-color: var(--sodium);
+  outline: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-footer__tip { transition: none; }
+}

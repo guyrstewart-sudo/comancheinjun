@@ -135,6 +135,21 @@ function renderStrings() {
   const fb = document.getElementById('footer-facebook');
   if (fb) { fb.href = CONFIG.SOCIAL.facebook; fb.textContent = t('footer.facebook.label', mode); }
 
+  // Tip jar — only rendered once CONFIG.TIP.url points at Comanche's own
+  // payment page; empty = kept hidden so no dead-link ever ships.
+  const tip = document.getElementById('footer-tip');
+  const tipLine = document.getElementById('footer-tip-line');
+  if (tip && tipLine) {
+    const tipUrl = (CONFIG.TIP && CONFIG.TIP.url) || '';
+    if (tipUrl) {
+      tip.href = tipUrl;
+      tip.textContent = t('footer.tip', mode);
+      tipLine.hidden = false;
+    } else {
+      tipLine.hidden = true;
+    }
+  }
+
   paintIdentityFooter();
 }
 

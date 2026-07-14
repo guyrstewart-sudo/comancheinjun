@@ -33,6 +33,20 @@ export const CONFIG = Object.freeze({
   }),
 
   /**
+   * Tip jar — the footer "buy the man a coffee/beer · $5" link. Points at a
+   * payment page COMANCHE controls (his own account — never created here).
+   * '' (empty) = the button is hidden entirely, so nothing broken ever ships.
+   * Paste the full destination once, e.g.:
+   *   Cash App:  'https://cash.app/$cashtag/5.00'   (pre-fills $5)
+   *   PayPal:    'https://paypal.me/handle/5'         (pre-fills $5)
+   *   Venmo:     'https://venmo.com/u/handle'         (amount typed in-app)
+   *   BuyMeCoffee:'https://buymeacoffee.com/handle'   (needs his signup first)
+   */
+  TIP: Object.freeze({
+    url: 'https://cash.app/$RudeCashus/5.00', // Rudy Aguilar's Cash App — opens with $5.00 pre-filled
+  }),
+
+  /**
    * Twitch embed `parent` list (hostname-only, no scheme/port/path).
    * localhost + 127.0.0.1 are for dev (forum-confirmed, brief §2.3).
    * ADD THE PRODUCTION HOSTNAME HERE ON GO-LIVE, e.g. 'guyrstewart-sudo.github.io'.
